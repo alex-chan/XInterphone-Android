@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+
+
+    <FrameLayout
+        android:id="@+id/host"
+        android:layout_width="match_parent"
+        android:layout_height="0dip" 
+        android:layout_weight="1">
+        
+    </FrameLayout>
+    
+ 	<LinearLayout
+ 	    android:id="@+id/toolbar"
+ 	    android:layout_width="match_parent"
+ 	    android:layout_height="wrap_content"
+ 	    android:layout_gravity="center" >
+
+ 	    <LinearLayout
+ 	        android:id="@+id/item_my_map"
+ 	        android:layout_width="wrap_content"
+ 	        android:layout_height="match_parent"
+ 	        android:layout_weight="1"
+ 	        android:orientation="vertical" >
+ 	    
+ 	        <ImageButton
+ 	            android:id="@+id/btn_my_map"
+ 	            android:layout_width="wrap_content"
+ 	            android:layout_height="wrap_content"
+ 	            android:layout_gravity="center_horizontal"
+ 	            android:background="@drawable/ic_map"
+ 	            android:clickable="false"
+ 	            android:contentDescription="@string/str_map" />
+
+ 	        <TextView
+ 	            android:id="@+id/tv_my_map"
+ 	            android:layout_width="wrap_content"
+ 	            android:layout_height="wrap_content"
+ 	            android:layout_gravity="center_horizontal"
+ 	            android:text="@string/str_map" />
+ 	         	         	        
+ 	    </LinearLayout>
+        
+ 	    <LinearLayout
+ 	        android:id="@+id/item_my_group"
+ 	        android:layout_width="wrap_content"
+ 	        android:layout_height="match_parent"
+ 	        android:layout_weight="1"
+ 	        android:orientation="vertical"
+ 	         >
+ 	    
+ 	        <ImageButton
+ 	            android:id="@+id/btn_my_group"
+ 	            android:layout_width="wrap_content"
+ 	            android:layout_height="wrap_content"
+ 	            android:layout_gravity="center_horizontal"
+ 	            android:background="@drawable/ic_mates"
+ 	            android:clickable="false"
+ 	            android:contentDescription="@string/str_group" />
+
+ 	        <TextView
+ 	            android:id="@+id/tv_my_group"
+ 	            android:layout_width="wrap_content"
+ 	            android:layout_height="wrap_content"
+ 	            android:layout_gravity="center_horizontal"
+ 	            android:text="@string/str_group" />
+ 	         	         	        
+ 	    </LinearLayout>
+ 	    
+ 	    <LinearLayout
+ 	        android:id="@+id/item_my_settings"
+ 	        android:layout_width="wrap_content"
+ 	        android:layout_height="match_parent"
+ 	        android:layout_weight="1"
+ 	        android:orientation="vertical"
+ 	        >
+ 	    
+ 	        <ImageButton
+ 	            android:id="@+id/btn_my_setttings"
+ 	            android:layout_width="wrap_content"
+ 	            android:layout_height="wrap_content"
+ 	            android:layout_gravity="center"
+ 	            android:background="@drawable/ic_setting"
+ 	            android:clickable="false"
+ 	            android:contentDescription="@string/str_setting" />
+
+ 	        <TextView
+ 	            android:id="@+id/tv_my_settings"
+ 	            android:layout_width="wrap_content"
+ 	            android:layout_height="wrap_content"
+ 	            android:layout_gravity="center"
+ 	            android:text="@string/str_setting" />
+ 	         	         	        
+ 	    </LinearLayout> 	    	    
+
+		
+ 	    
+	</LinearLayout>   	
+</LinearLayout>

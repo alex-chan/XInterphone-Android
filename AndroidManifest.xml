@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.gmail.czzsunset.xinterphone"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="12"
+        android:targetSdkVersion="18" />
+    
+    <!-- 
+    <uses-feature
+        android:name="android.hardware.usb.accessory"/>
+     -->
+	<uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true"/>
+	
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+	<!-- The following two permissions are not required to use
+	     Google Maps Android API v2, but are recommended. -->
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" /> 	
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>  
+    <application
+        android:name="App"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        >
+        
+         <!-- <uses-library android:name="android.hardware.usb" /> -->
+        
+        <activity
+          
+            android:name="com.gmail.czzsunset.xinterphone.ui.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            
+			<intent-filter>
+                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+            </intent-filter>
+
+            <meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+                android:resource="@xml/accessory_filter" />            
+            
+        </activity>
+		
+
+
+        <activity
+            android:name="com.gmail.czzsunset.xinterphone.ui.GroupActionActivity"
+            android:label="@string/app_name" 
+            android:parentActivityName="com.gmail.czzsunset.xinterphone.ui.MainActivity" >
+            
+        		        
+	        <!-- Parent activity meta-data to support API level 7+ -->
+	        <meta-data
+	            android:name="android.support.PARENT_ACTIVITY"
+	            android:value="com.gmail.czzsunset.xinterphone.ui.MainActivity" />            
+	   </activity>
+        
+        
+     
+        
+  
+        
+		<meta-data android:name="com.google.android.gms.version"
+           android:value="@integer/google_play_services_version" />
+        
+    </application>
+
+</manifest>

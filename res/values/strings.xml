@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">InterphoneMap</string>
+    <string name="notify_working">正在服务</string>
+    <string name="action_settings">设置</string>
+    <string name="action_exit">退出</string>
+    <string name="action_group_actions">队伍操作</string>
+    <string name="action_map_type_spinner">选择图类型</string>
+    <string name="groupaction_joingroup">加入队伍</string>
+    <string name="groupaction_updategroup">更新队友</string>
+    <string name="groupaction_creategroup">创建队伍</string>
+    <string name="groupaction_exitgroup">退出队伍</string>
+    
+    <string name="str_map">地图</string>
+    <string name="str_group">队伍</string>
+    <string name="str_setting">设置</string>
+    
+    <string name="network_unavailable">没有网络</string>
+    <string name="server_response_error">服务器返回错误</string>
+    <string name="connect_server_error">连接服务器错误</string>
+    <string name="goback">返回</string>
+    <string name="group_actions">队伍操作</string>
+    <string name="input_noting">没有输入东东哦</string>
+    
+    <string name="cancel">取消</string>
+    
+    
+	<string-array name="tabmap_menus">
+        <item name="mapmenu_location">队友位置</item>
+        <item name="mapmenu_track">我的轨迹</item>
+    </string-array>
+
+	
+	
+	
+	<string name="encryption_type">加密方式</string>
+	
+	<string-array name="encrytion_array">
+        <item name="encrytion_type_0">无加密</item>
+        <item name="encrytion_type_1">加密1</item>
+        <item name="encrytion_type_2">加密2</item>
+        <item name="encrytion_type_3">加密3</item>
+        <item name="encrytion_type_4">加密4</item>
+        <item name="encrytion_type_5">加密5</item>
+        <item name="encrytion_type_6">加密6</item>
+        <item name="encrytion_type_7">加密7</item>
+        <item name="encrytion_type_8">加密8</item>
+    </string-array>
+    
+	<string-array name="update_interval_array">
+        <item name="update_interval_1min">1分钟</item>
+        <item name="update_interval_2min">2分钟</item>
+        <item name="update_interval_3min">3分钟</item>
+        <item name="update_interval_5min">5分钟</item>
+        <item name="update_interval_10min">10分钟</item>
+        <item name="update_interval_20min">20分钟</item>
+        <item name="update_interval_30min">30分钟</item>
+        <item name="update_interval_40min">40分钟</item>
+        <item name="update_interval_60min">1小时</item>
+        <item name="update_interval_60min">2小时</item>                
+    </string-array>
+    
+	
+	<string-array name="interphone_freq_array">
+        <item>409.7500</item>
+        <item>409.7625</item>
+        <item>409.7750</item>
+        <item>409.7876</item>
+        <item>409.8000</item>
+        <item>409.8125</item>
+        <item>409.8250</item>
+        <item>409.8375</item>
+        <item>409.8500</item>
+        <item>409.8625</item>
+        <item>409.8750</item>
+        <item>409.8875</item>
+        <item>409.9000</item>
+        <item>409.9125</item>
+        <item>409.9250</item>
+        <item>409.9375</item>
+        <item>409.9500</item>
+        <item>409.9625</item>
+        <item>409.9750</item>
+        <item>409.9875</item>        
+        
+                        
+    </string-array>	
+	
+	<integer-array name="update_interval_array_i">
+        <item name="update_interval_1min">1</item>
+        <item name="update_interval_2min">2</item>
+        <item name="update_interval_3min">3</item>
+        <item name="update_interval_5min">5</item>
+        <item name="update_interval_10min">10</item>
+        <item name="update_interval_20min">20</item>
+        <item name="update_interval_30min">30</item>
+        <item name="update_interval_40min">40</item>
+        <item name="update_interval_60min">60</item>
+        <item name="update_interval_60min">120</item>    	    
+	</integer-array>
+    	
+    
+	<string name="encrytion_type_0">无加密</string>	
+	
+	
+        <string name="action_map_more">更多</string>
+        <string name="group_name">队伍名称</string>
+        <string name="create">创建</string>    
+        <string name="join">加入</string>
+        <string name="exit">退出</string>
+        <string name="update">更新</string>
+        <string name="group_id">队伍号</string>
+        <string name="location_update_interval">位置更新时间间隔</string>
+        <string name="interphone_freq">对讲频率</string>
+        <string name="interphone_encrypt_type">加密方式</string>
+        <string name="minute_3">3分钟</string>
+        <string name="freq_4500250">450.0250M</string>
+        
+        
+        
+
+</resources>
+
+

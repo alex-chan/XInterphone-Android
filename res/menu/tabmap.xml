@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" 
+    xmlns:myapp="http://schemas.android.com/apk/res-auto">
+    <item 
+        android:id="@+id/action_map_spinner"
+        android:title="@string/action_map_type_spinner"
+        myapp:showAsAction="always|withText"
+        android:actionLayout="@layout/actionbar_spinner"
+        myapp:actionViewClass="android.widget.Spinner"
+    />
+    
+    
+    <item
+        android:id="@+id/action_map_more"
+        android:orderInCategory="100"
+        myapp:showAsAction="always|withText"        
+        android:icon="@drawable/ic_setting_light"
+        android:title="@string/action_map_more"/>
+    
+</menu>

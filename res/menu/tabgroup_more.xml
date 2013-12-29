@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" 
+    xmlns:myapp="http://schemas.android.com/apk/res-auto">
+  <item
+        android:id="@+id/groupaction_joingroup"
+        android:orderInCategory="100"
+        myapp:showAsAction="always|withText"
+        android:icon="@drawable/ic_group_actions"
+        android:title="@string/groupaction_joingroup"
+        />
+    
+  
+  <item
+        android:id="@+id/groupaction_updategroup"
+        android:orderInCategory="100"
+        myapp:showAsAction="always|withText"
+        android:icon="@drawable/ic_group_actions"
+        android:title="@string/groupaction_updategroup"
+        />
+  
+  <item
+        android:id="@+id/groupaction_creategroup"
+        android:orderInCategory="100"
+        myapp:showAsAction="always|withText"
+        android:icon="@drawable/ic_group_actions"
+        android:title="@string/groupaction_creategroup"
+        />
+  <item
+        android:id="@+id/groupaction_exitgroup"
+        android:orderInCategory="100"
+        myapp:showAsAction="always|withText"
+        android:icon="@drawable/ic_group_actions"
+        android:title="@string/groupaction_exitgroup"
+        />    
+</menu>

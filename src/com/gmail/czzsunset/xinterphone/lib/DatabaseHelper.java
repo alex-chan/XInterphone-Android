@@ -180,7 +180,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     = Uri.parse("content://"+AUTHORITY+"/"+TABLE_NAME);
         
         public static final String CONTENT_TYPE
-                    = "vnd.android.cursor.dir/vnd.xsunset.interphonemap";        
+                    = "vnd.android.cursor.dir/vnd.xsunset.xinterphone";        
         
         public static final String  GLOBAL_ID   = "global_id";
         public static final String  LOCAL_ID    = "local_id";
@@ -218,7 +218,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         
         
         public static final String CONTENT_TYPE
-                = "vnd.android.cursor.dir/vnd.xsunset.interphonemap";
+                = "vnd.android.cursor.dir/vnd.xsunset.xinterphone";
 
         /**
          * The content URI base for a single row of data. Callers must

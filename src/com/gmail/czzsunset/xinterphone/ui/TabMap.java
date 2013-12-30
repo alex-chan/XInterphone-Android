@@ -1,6 +1,8 @@
 package com.gmail.czzsunset.xinterphone.ui;
 
 import com.gmail.czzsunset.xinterphone.R;
+import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper.MatesTable;
+import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper.TraceTable;
 import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
 import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
 
@@ -9,10 +11,16 @@ import java.util.Date;
 
 
 
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 
@@ -25,7 +33,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-public class TabMap extends Fragment {
+public class TabMap extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> { 
 
 		
 
@@ -77,15 +85,9 @@ public class TabMap extends Fragment {
 			super.onCreate(savedInstanceState);
 			
 			setHasOptionsMenu(true);		    							    
-		    
-		    
+		    		    
 			mMapFragment = attachBaseMapFragment();
 
-
-
-			
-			
-			
 		}
 		
 		
@@ -129,11 +131,57 @@ public class TabMap extends Fragment {
 			
 			Date dt = new Date();
 			Log.d(TAG, ""+ dt.getTime());
-			Log.d(TAG, dt.getTime() - 120 * 1000 + "" );
 			Location loc = mLastLocationFinder.getLastBestLocation(2000, dt.getTime() - 120 * 1000);
 			mMapFragment.animateToLocation(loc, 0);
+			
+			getLoaderManager().initLoader(0, null,   this);
 					
 		}
+		
+		@Override
+	    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+	        final String[] MEMBERS_PROJECTION = new String[] {
+	            MatesTable.TABLE_NAME+ "." + MatesTable._ID,
+	            MatesTable.NAME,        
+	            TraceTable.TABLE_NAME + "." + TraceTable.LATITUDE,
+	            TraceTable.TABLE_NAME + "." + TraceTable.LONGITUDE
+	        };
+	        
+	        return new CursorLoader(getActivity(), 
+	                Uri.withAppendedPath(TraceTable.CONTENT_URI, "latest"),
+	                MEMBERS_PROJECTION,
+	                null,
+	                null,
+	                null);        
+
+	    }
+	    
+	    @Override
+	    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	        // Swap the new cursor in.  (The framework will take care of closing the
+	        // old cursor once we return.)
+//	        mAdapter.swapCursor(data);
+	        Log.d(TAG, "onLoadFinished");
+	        
+	    	data.moveToFirst();
+	    	while(!data.isAfterLast()){
+	    		Log.d(TAG, "Cursor get data");
+	    		
+	    		double lat = data.getDouble(
+	    				data.getColumnIndex(TraceTable.TABLE_NAME + "." + TraceTable.LATITUDE ));
+	    		double lng  = data.getDouble(
+	    				data.getColumnIndex(TraceTable.TABLE_NAME + "." + TraceTable.LONGITUDE ));
+	    		Log.d(TAG, "lat:"+lat+" lng:"+lng);
+	    		data.moveToNext();
+	    	}
+	    	
+	    }		
+	    
+		@Override
+		public void onLoaderReset(Loader<Cursor> arg0) {
+			// TODO Auto-generated method stub
+			
+		}	    
 		
 		@Override
 		public void onPause(){
@@ -193,7 +241,8 @@ public class TabMap extends Fragment {
 		    
 		    
             mSpinnerAdapter = new ArrayAdapter<String>(
-                    ((MainActivity)getActivity()).getActionBarThemedContextCompat(),
+            		// Need to convert to MainActivity
+                    ((MainActivity)getActivity()).getActionBarThemedContextCompat(),                    
                     android.R.layout.simple_list_item_1,
                     android.R.id.text1,
                     getResources().getStringArray(R.array.tabmap_menus));   	        
@@ -238,6 +287,9 @@ public class TabMap extends Fragment {
 			return tmpMap;
 			
 		}
+
+
+
 		
 
 		

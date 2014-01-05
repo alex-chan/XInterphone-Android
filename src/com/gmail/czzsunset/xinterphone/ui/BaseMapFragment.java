@@ -60,7 +60,8 @@ public class BaseMapFragment  extends SupportMapFragment {
 	
 	
 	
-	private static final int[] res = { R.drawable.m1, R.drawable.m2, R.drawable.m3, R.drawable.m4, R.drawable.m5 };		
+	private static final int[] res = { R.drawable.m1, R.drawable.m2, R.drawable.m3, R.drawable.m4, R.drawable.m5 };	
+	
 	private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private Rect bounds = new Rect();
 	
@@ -236,11 +237,69 @@ public class BaseMapFragment  extends SupportMapFragment {
 		
 		mUiSetting = mMap.getUiSettings();	
     	mUiSetting.setMyLocationButtonEnabled(true);
-    	mUiSetting.setMyLocationButtonEnabled(true);
+    	
     	
     	
 	}
 	
+	
+	public void addMarker2(double lat, double lng, int indexInGroup, String name,
+																		String snippet, boolean isSelf) {
+
+
+		if( mMap != null){
+			
+			
+			Log.d(TAG, "Show :"+name+" on lat:" + lat + " lng:" + lng);
+			
+			
+			
+			//Bitmap bitmap = base.copy(Bitmap.Config.ARGB_8888, true);
+
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			
+			options.inMutable = true;
+			
+			
+			Bitmap bitmap = BitmapFactory.decodeResource(getResources(), 
+									isSelf? R.drawable.flag_red: R.drawable.flag_blue , options);
+
+			LatLng location = new LatLng(lat,lng);
+			
+			String text = String.valueOf(indexInGroup);
+			paint.getTextBounds(text, 0, text.length(), bounds);
+			float x = bitmap.getWidth() / 2.0f;
+			float y = (bitmap.getHeight() - bounds.height()) / 2.0f - bounds.top;
+	
+			
+			paint.setColor(Color.WHITE);
+			paint.setTextAlign(Align.CENTER);
+			paint.setTextSize(getResources().getDimension(R.dimen.text_size));					
+			
+			Canvas canvas = new Canvas(bitmap);
+			canvas.drawText(text, x, y, paint);
+	
+			
+			BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(bitmap);
+			
+						
+			mMap.addMarker(new MarkerOptions()
+		     		.position(location)
+		     		.title(name)
+		     		.snippet(snippet)
+		     		.icon(icon)
+		     		.anchor(0.5f, 0.5f));	
+			if(isSelf){
+				animateToLocation(location, 1000);
+			}
+			
+		}else{
+			Log.d(TAG, "mMap is null");
+		}
+			
+		
+		
+	}	
 
 	public void addMarker(Location loc, int markerSize, int indexInGroup, String name,
 			String snippet){
@@ -248,6 +307,16 @@ public class BaseMapFragment  extends SupportMapFragment {
 								markerSize, indexInGroup, name, snippet);
 									
 		
+	}
+	
+	public void addMarker(double lat, double lng, int markerSize, int indexInGroup, String name,
+			String snippet){
+		addMarker(new LatLng(lat,lng), markerSize, indexInGroup, name, snippet);
+	}
+	
+	public void addMarker(double lat, double lng, int indexInGroup){
+		
+		addMarker(lat,lng,indexInGroup>=10?2:1,indexInGroup,null,null);
 	}
 
 
@@ -277,8 +346,7 @@ public class BaseMapFragment  extends SupportMapFragment {
 			options.inMutable = true;
 			
 			Bitmap bitmap = BitmapFactory.decodeResource(getResources(), res[markerSize-1], options);
-			
-	//		Bitmap.Config conf = Bitmap.Config.ARGB_8888; 
+
 			
 			
 			String text = String.valueOf(markerSize);

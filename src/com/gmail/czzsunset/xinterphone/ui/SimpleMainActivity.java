@@ -20,12 +20,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
@@ -125,9 +127,13 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		
+		
+		
 		setContentView(R.layout.simple_activity_main);
 
-		mBaseMap = attachBaseMapFragment();
+		
 
 		setupActionBar();
 
@@ -145,8 +151,11 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 	    getMenuInflater().inflate(R.menu.main, menu);
+	    
 		return true;
 	}
+	
+
 
 	@Override
 	protected void onDestroy(){
@@ -183,6 +192,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 	private void setupActionBar(){
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
+        
         actionBar.setDisplayShowTitleEnabled(false);
 	}
 
@@ -215,6 +225,10 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 //    		sendBroadcast(exitIntent);
     		stopService();
     		this.finish();
+    		return true;
+    	}else if(item.getItemId() == R.id.action_settings){
+    		Intent i = new Intent(this, SimplePrefActivity.class);
+    		startActivity(i);
     		return true;
     	}
     	
@@ -253,6 +267,19 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 		
 		super.onResume();
 		
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		if( prefs.getBoolean("firstLaunch", true)){
+			Intent i = new Intent(getApplicationContext(), SimplePrefActivity.class);						
+			
+//			startActivity(i);
+			
+//			finish();
+			
+//			return;
+		}
+		mBaseMap = attachBaseMapFragment();
 		mBaseMap.setUpMapIfNeeded();		
 		
 		
@@ -273,6 +300,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         final String[] MEMBERS_PROJECTION = new String[] {
         	SimpleTraceTable._ID,
+        	SimpleTraceTable.MEMBER_LOCAL_ID,
             SimpleTraceTable.LATITUDE,
             SimpleTraceTable.LONGITUDE
         };
@@ -297,12 +325,17 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
     	while(!data.isAfterLast()){
     		Log.d(TAG, "Cursor get data");
     		
+    		int indexInGroup = data.getInt(
+    				data.getColumnIndex(SimpleTraceTable.MEMBER_LOCAL_ID));
     		double lat = data.getDouble(
     				data.getColumnIndex( SimpleTraceTable.LATITUDE ));
     		double lng  = data.getDouble(
     				data.getColumnIndex(SimpleTraceTable.LONGITUDE ));
-    		Log.d(TAG, "lat:"+lat+" lng:"+lng);
+    		Log.d(TAG, "member " + indexInGroup + " at lat:"+lat+" lng:"+lng);
     		
+    		
+    		
+    		mBaseMap.addMarker2(lat,lng,indexInGroup,null,null, false);
     		data.moveToNext();
     	}
     	

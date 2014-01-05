@@ -58,6 +58,7 @@ public class SimpleDatabaseProvider extends ContentProvider {
         mNotesProjectionMap = new HashMap<String, String>();
         
         mNotesProjectionMap.put(SimpleTraceTable._ID, SimpleTraceTable._ID); 
+        mNotesProjectionMap.put(SimpleTraceTable.MEMBER_LOCAL_ID, SimpleTraceTable.MEMBER_LOCAL_ID);
         mNotesProjectionMap.put(SimpleTraceTable.LATITUDE,   SimpleTraceTable.LATITUDE);
         mNotesProjectionMap.put(SimpleTraceTable.LONGITUDE,  SimpleTraceTable.LONGITUDE);        
         

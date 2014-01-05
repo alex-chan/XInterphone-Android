@@ -115,10 +115,10 @@ public class SimpleDatabaseHelper extends SQLiteOpenHelper {
         return appendMostLatestLocationRecord(db,memberId,time,lat,lng);
     }
     
-    public long appendTraceRecord(int memberGlobalId, long time, double lat, double lng){
+    public long appendTraceRecord(int memberId, long time, double lat, double lng){
         
         SQLiteDatabase db = this.getWritableDatabase();
-        long id =this.appendTraceRecordWithDb(db, memberGlobalId,time,lat,lng);
+        long id =this.appendTraceRecordWithDb(db, memberId,time,lat,lng);
         db.close();
         return id;
     }

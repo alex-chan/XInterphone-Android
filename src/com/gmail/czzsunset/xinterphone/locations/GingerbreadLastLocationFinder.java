@@ -132,15 +132,16 @@ public class GingerbreadLastLocationFinder implements ILastLocationFinder {
   protected BroadcastReceiver singleUpdateReceiver = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
-      context.unregisterReceiver(singleUpdateReceiver);
+    	Log.d(TAG," got a single location update");
+    	context.unregisterReceiver(singleUpdateReceiver);
       
-      String key = LocationManager.KEY_LOCATION_CHANGED;
-      Location location = (Location)intent.getExtras().get(key);
+    	String key = LocationManager.KEY_LOCATION_CHANGED;
+    	Location location = (Location)intent.getExtras().get(key);
       
-      if (locationListener != null && location != null)
-        locationListener.onLocationChanged(location);
+    	if (locationListener != null && location != null)
+    		locationListener.onLocationChanged(location);
       
-      locationManager.removeUpdates(singleUpatePI);
+    	locationManager.removeUpdates(singleUpatePI);
     }
   };
 

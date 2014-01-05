@@ -117,8 +117,9 @@
         <string name="minute_3">3分钟</string>
         <string name="freq_4500250">450.0250M</string>
         
-        
-        
+   <string name="pref_group_id">队伍编号</string>
+   <string name="pref_interphone_freq">对讲频率</string>               
+   <string name="pref_my_code">个人编号</string>     
 
 </resources>
 

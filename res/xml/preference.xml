@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <EditTextPreference 
+        android:title="@string/pref_interphone_freq" 
+        android:key="interphone_freq"
+        android:defaultValue="400.0000" 
+        android:summary="400.0000MHz"/>
+    
+    <EditTextPreference 
+        android:title="@string/pref_group_id" 
+        android:key="group_id" 
+        android:defaultValue="0" 
+        android:summary="#0"/>
+        
+    <EditTextPreference
+        android:key="user_id" 
+        android:title="@string/pref_my_code" 
+        android:defaultValue="0" 
+        android:summary="#0"/>
+    
+
+</PreferenceScreen>

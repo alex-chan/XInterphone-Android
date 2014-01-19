@@ -16,9 +16,9 @@
 
 package com.gmail.czzsunset.xinterphone.locations;
 
-import com.gmail.czzsunset.xinterphone.locations.base.IStrictMode;
-
 import android.os.StrictMode;
+
+import com.gmail.czzsunset.xinterphone.locations.base.IStrictMode;
 
 /**
  * Implementation that supports the Strict Mode functionality

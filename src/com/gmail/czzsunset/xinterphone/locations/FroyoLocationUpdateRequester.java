@@ -16,11 +16,11 @@
 
 package com.gmail.czzsunset.xinterphone.locations;
 
-import com.gmail.czzsunset.xinterphone.Constants;
-import com.gmail.czzsunset.xinterphone.locations.base.LocationUpdateRequester;
-
 import android.app.PendingIntent;
 import android.location.LocationManager;
+
+import com.gmail.czzsunset.xinterphone.Constants;
+import com.gmail.czzsunset.xinterphone.locations.base.LocationUpdateRequester;
 
 /**
  * Provides support for initiating active and passive location updates 

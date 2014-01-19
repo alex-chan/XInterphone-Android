@@ -2,20 +2,7 @@ package com.gmail.czzsunset.xinterphone.ui;
 
 import java.util.Date;
 
-import com.gmail.czzsunset.xinterphone.FpaService;
-import com.gmail.czzsunset.xinterphone.Protocol;
-import com.gmail.czzsunset.xinterphone.R;
-import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper.MatesTable;
-import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper.TraceTable;
-import com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseHelper.SimpleTraceTable;
-import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
-import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
-
-import com.google.android.gms.maps.model.LatLng;
-
 import android.annotation.TargetApi;
-import android.app.Activity;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +11,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,8 +27,17 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
+
+import com.gmail.czzsunset.xinterphone.FpaService;
+import com.gmail.czzsunset.xinterphone.Protocol;
+import com.gmail.czzsunset.xinterphone.R;
+import com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseHelper;
+import com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseHelper.SimpleTraceTable;
+import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
+import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.model.LatLng;
 
 public class SimpleMainActivity extends ActionBarActivity  implements LoaderManager.LoaderCallbacks<Cursor> { 
 
@@ -54,17 +51,40 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 
 	LocalBroadcastManager mLbcManager ;
 	
-	BaseMapFragment mBaseMap ;
+
 	
     private ILastLocationFinder mLastLocationFinder;
+    private Location mLastLocation;
+    
+    private SimpleDatabaseHelper mDbHelper;
+    
+    SharedPreferences mSharedPref ;
+    
+    private LocationManager mLocationManager ;
+    
+    private SimpleMapFragment mMapfrag;
+    
+ 
 
     private class MyLocationListener implements LocationListener{
 
 		@Override
 		public void onLocationChanged(Location location) {
 			// TODO Auto-generated method stub
-			Log.d(TAG, "A location fix coming...");
-			mBaseMap.animateToLocation(location, 1000);
+			Log.d(TAG, "A location fix coming..." + location);
+			if(location != null){
+				LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+				
+				mMapfrag.animateToLocation(latlng, 1000);			
+				
+				int memberId =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+						
+				mDbHelper.appendTraceRecord(memberId, location.getTime(), location.getLatitude(),
+																			location.getLongitude());	
+			}
+				
+				
+			
 		}
 
 		@Override
@@ -123,25 +143,43 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 		}
 		
 	};
+	
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		
+		int ret = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+		if( ret !=  ConnectionResult.SUCCESS){
+			
+			GooglePlayServicesUtil.getErrorDialog(ret, this, 0).show();
+			return ;
+		}
 		
 		
 		setContentView(R.layout.simple_activity_main);
 
 		
-
-		setupActionBar();
-
-		registerServiceUpdate();
-		
 				
+		setupActionBar();
+		
+		mDbHelper = new SimpleDatabaseHelper(this);
+		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);		
+		mLocationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
+		
+		
+		setupMapFragment();
+		
+
+
+		
+		registerServiceUpdate();
 		startService();
 		
+		
+//		requestLocationUpdate();
 
 	}
 
@@ -160,6 +198,8 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 	@Override
 	protected void onDestroy(){
 		mLbcManager.unregisterReceiver(protocolReceiver);
+		
+		
 		super.onDestroy();
 
 		System.exit(1);
@@ -224,6 +264,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 //    		Intent exitIntent = new Intent( FpaService.ACTION_STOP_SERVICE );
 //    		sendBroadcast(exitIntent);
     		stopService();
+//    		cancelRequestLocationUpdate();
     		this.finish();
     		return true;
     	}else if(item.getItemId() == R.id.action_settings){
@@ -237,27 +278,53 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 
     
     
-	/**
-	 * Attach the CommonMapFragment instance to current fragment if needed
-	 * @return 
-	 */
-	public BaseMapFragment attachBaseMapFragment(){
+    private void setupMapFragment(){
+    	
+    	mLastLocationFinder = PlatformSpecificImplementationFactory.getLastLocationFinder(this);		
+    	
+    	mLastLocationFinder.setChangedLocationListener(new MyLocationListener());
+    	
+    	mLastLocation  = mLastLocationFinder.getLastBestLocation(2000, new Date().getTime() - 120 * 1000);
 		
-	
+		Log.d(TAG, "Got last best location:"+mLastLocation);
+		if( mLastLocation != null){
+			attachMapFragment(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude())  );
+		}else{
+			LatLng latlng = null;
+			attachMapFragment(latlng);
+		}
+    	
+    }
+    
+
+        
+    
+	public void attachMapFragment(LatLng latlng){
 		
-    	FragmentManager manager = getSupportFragmentManager();      	
-    	BaseMapFragment map =  BaseMapFragment.newInstance();
+    	FragmentManager manager = getSupportFragmentManager();     
+    	
+ 
+    	if( latlng !=null ){
+    		mMapfrag = SimpleMapFragment.newInstance(latlng);
+    	}else{
+    		mMapfrag = SimpleMapFragment.newInstance();
+    	}
+    	
 		manager.beginTransaction()
-			.add(R.id.host, map, "tabmap")
+			.add(R.id.host, mMapfrag, "tabmap")
 			.commit();    	
-		
+    	
 
 //			    mCommMapFragment.setRetainInstance(true);
-		    
-
-		map.setUpMapIfNeeded();
-		return map;
 		
+	}
+	
+	public void addMarker(double lat, double lng, int indexInGroup, String name,
+			String snippet, boolean isSelf) {
+		
+		if(mMapfrag != null){
+			mMapfrag.addMarker(lat,lng,indexInGroup,name,snippet,isSelf);
+		}
 	}
 
     
@@ -267,35 +334,16 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 		
 		super.onResume();
 		
-		
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		if( prefs.getBoolean("firstLaunch", true)){
-			Intent i = new Intent(getApplicationContext(), SimplePrefActivity.class);						
-			
-//			startActivity(i);
-			
-//			finish();
-			
-//			return;
+		if( mLastLocation !=null ){
+			addMarker(mLastLocation.getLatitude(),mLastLocation.getLongitude(),
+					0,null,null, false);	
 		}
-		mBaseMap = attachBaseMapFragment();
-		mBaseMap.setUpMapIfNeeded();		
-		
-		
-		mLastLocationFinder = PlatformSpecificImplementationFactory.getLastLocationFinder(this);
-		
-		mLastLocationFinder.setChangedLocationListener(new MyLocationListener());
-		
-		Date dt = new Date();
-		Log.d(TAG, ""+ dt.getTime());
-		Location loc = mLastLocationFinder.getLastBestLocation(2000, dt.getTime() - 120 * 1000);
-		mBaseMap.animateToLocation(loc, 0);
-		
-		getSupportLoaderManager().initLoader(0, null,  this);
+		getSupportLoaderManager().initLoader(0, null,   this);		
 				
 	}
 	
+	
+
 	@Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         final String[] MEMBERS_PROJECTION = new String[] {
@@ -312,8 +360,8 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
                 null,
                 null);        
 
-    }
-    
+    }	
+	
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         // Swap the new cursor in.  (The framework will take care of closing the
@@ -323,7 +371,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
         
     	data.moveToFirst();
     	while(!data.isAfterLast()){
-    		Log.d(TAG, "Cursor get data");
+//    		Log.d(TAG, "Cursor get data");
     		
     		int indexInGroup = data.getInt(
     				data.getColumnIndex(SimpleTraceTable.MEMBER_LOCAL_ID));
@@ -331,11 +379,15 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
     				data.getColumnIndex( SimpleTraceTable.LATITUDE ));
     		double lng  = data.getDouble(
     				data.getColumnIndex(SimpleTraceTable.LONGITUDE ));
-    		Log.d(TAG, "member " + indexInGroup + " at lat:"+lat+" lng:"+lng);
+//    		Log.d(TAG, "member " + indexInGroup + " at lat:"+lat+" lng:"+lng);
     		
+    		boolean isSelf = false;
+    		int myCode = mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+    		if( indexInGroup == myCode){
+    			isSelf = true;
+    		}
+    		addMarker(lat,lng,indexInGroup,null,null, true);
     		
-    		
-    		mBaseMap.addMarker2(lat,lng,indexInGroup,null,null, false);
     		data.moveToNext();
     	}
     	
@@ -345,7 +397,8 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 	public void onLoaderReset(Loader<Cursor> arg0) {
 		// TODO Auto-generated method stub
 		
-	}	
+	}			
+
 
 
 }

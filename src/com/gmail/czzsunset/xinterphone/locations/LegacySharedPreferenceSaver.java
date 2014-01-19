@@ -16,11 +16,11 @@
 
 package com.gmail.czzsunset.xinterphone.locations;
 
-import com.gmail.czzsunset.xinterphone.locations.base.SharedPreferenceSaver;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+
+import com.gmail.czzsunset.xinterphone.locations.base.SharedPreferenceSaver;
 
 /**
  * Save {@link SharedPreferences} in a way compatible with Android 1.6. 

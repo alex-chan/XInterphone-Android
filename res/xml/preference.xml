@@ -18,5 +18,13 @@
         android:defaultValue="0" 
         android:summary="#0"/>
     
+    
+    <EditTextPreference
+        android:key="key_update_interval" 
+        android:title="@string/pref_update_interval" 
+        android:inputType="number"
+
+        android:summary="5min"/>    
+    
 
 </PreferenceScreen>

@@ -1,5 +1,7 @@
 package com.gmail.czzsunset.xinterphone.lib;
 
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,8 +12,6 @@ import android.util.Log;
 
 import com.gmail.czzsunset.xinterphone.Constants;
 import com.gmail.czzsunset.xinterphone.model.User;
-
-import java.util.List;
 
 
 /**

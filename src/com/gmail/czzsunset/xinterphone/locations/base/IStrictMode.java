@@ -16,6 +16,8 @@
 
 package com.gmail.czzsunset.xinterphone.locations.base;
 
+import android.os.StrictMode;
+
 /**
  * This Interface definition allows you to create OS version-specific  
  * implementations that offer the full Strict Mode functionality

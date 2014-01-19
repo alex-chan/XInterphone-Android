@@ -1,46 +1,34 @@
 package com.gmail.czzsunset.xinterphone.net;
 
-import android.app.Activity;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.gmail.czzsunset.xinterphone.R;
-import com.gmail.czzsunset.xinterphone.App;
-import com.gmail.czzsunset.xinterphone.Constants;
-import com.gmail.czzsunset.xinterphone.model.Group;
-import com.gmail.czzsunset.xinterphone.model.User;
-import com.gmail.czzsunset.xinterphone.model.User.Sex;
-import com.gmail.czzsunset.xinterphone.model.User.Status;
-import com.gmail.czzsunset.xinterphone.ui.CreateGroupActivity;
-import com.google.android.gms.maps.model.LatLng;
-
-import org.apache.http.HttpConnection;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
+import com.gmail.czzsunset.xinterphone.App;
+import com.gmail.czzsunset.xinterphone.Constants;
+import com.gmail.czzsunset.xinterphone.R;
+import com.gmail.czzsunset.xinterphone.model.Group;
+import com.gmail.czzsunset.xinterphone.model.User;
+import com.gmail.czzsunset.xinterphone.model.User.Sex;
+import com.gmail.czzsunset.xinterphone.model.User.Status;
+import com.google.android.gms.maps.model.LatLng;
 
 
 public class NetOperation implements INetOperation{

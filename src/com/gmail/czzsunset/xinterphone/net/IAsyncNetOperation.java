@@ -1,13 +1,11 @@
 package com.gmail.czzsunset.xinterphone.net;
 
-import android.content.Context;
+import java.util.List;
+import java.util.Map;
 
 import com.gmail.czzsunset.xinterphone.model.Group;
 import com.gmail.czzsunset.xinterphone.model.User;
 import com.google.android.gms.maps.model.LatLng;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Asynchronous interface of network operation  

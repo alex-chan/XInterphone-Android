@@ -1,5 +1,7 @@
 package com.gmail.czzsunset.xinterphone.lib;
 
+import java.util.HashMap;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -13,11 +15,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.gmail.czzsunset.xinterphone.Constants;
 import com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseHelper.SimpleTraceTable;
-
-
-import java.util.HashMap;
 
 
 /**

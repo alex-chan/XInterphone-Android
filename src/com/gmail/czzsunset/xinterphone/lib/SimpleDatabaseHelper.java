@@ -9,9 +9,6 @@ import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.gmail.czzsunset.xinterphone.Constants;
-import com.gmail.czzsunset.xinterphone.model.User;
-
-import java.util.List;
 
 
 /**
@@ -104,6 +101,7 @@ public class SimpleDatabaseHelper extends SQLiteOpenHelper {
         values.put(SimpleTraceTable.LONGITUDE, lng);
         values.put(SimpleTraceTable.IS_MOST_LATEST_UPDATE, 1);
         long newInsertedId = db.insert(SimpleTraceTable.TABLE_NAME, null, values);
+        
         return newInsertedId;        
     }
     
@@ -119,6 +117,7 @@ public class SimpleDatabaseHelper extends SQLiteOpenHelper {
         
         SQLiteDatabase db = this.getWritableDatabase();
         long id =this.appendTraceRecordWithDb(db, memberId,time,lat,lng);
+        
         db.close();
         return id;
     }

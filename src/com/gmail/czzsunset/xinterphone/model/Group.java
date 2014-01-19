@@ -1,10 +1,10 @@
 package com.gmail.czzsunset.xinterphone.model;
 
 
-import com.google.android.gms.maps.model.LatLng;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.android.gms.maps.model.LatLng;
 
 public class Group {
     

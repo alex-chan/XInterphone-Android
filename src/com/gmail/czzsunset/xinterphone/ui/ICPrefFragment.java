@@ -1,10 +1,10 @@
 package com.gmail.czzsunset.xinterphone.ui;
 
+import java.util.Random;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -17,13 +17,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.gmail.czzsunset.xinterphone.R;
 import com.gmail.czzsunset.xinterphone.App;
-import com.gmail.czzsunset.xinterphone.Constants;
+import com.gmail.czzsunset.xinterphone.R;
 import com.gmail.czzsunset.xinterphone.model.Group;
-
-import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * 

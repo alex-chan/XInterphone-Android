@@ -4,7 +4,7 @@ import android.app.AlarmManager;
 
 public class Constants {
 
-	public final static String PACKAGE_PREFIX = "gmail.xsunset.xinterphone.";
+	public final static String PACKAGE_PREFIX = "com.gmail.czzsunset.xinterphone.";
 	
 	
 	

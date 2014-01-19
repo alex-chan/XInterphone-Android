@@ -25,27 +25,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import com.gmail.czzsunset.xinterphone.Constants;
-
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
+import android.hardware.usb.UsbAccessory;
+import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import com.gmail.czzsunset.xinterphone.Constants;
 // Android 2.3.4-3.1
 //import com.android.future.usb.UsbAccessory;
 //import com.android.future.usb.UsbManager;
-
 // Above android 3.1
-import android.hardware.usb.UsbAccessory;
-import android.hardware.usb.UsbManager;
 
 /** Configures a USB accessory and its input/output streams.
  * 

@@ -1,6 +1,9 @@
 package com.gmail.czzsunset.xinterphone.ui;
 
+import java.util.List;
+
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,15 +21,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.database.Cursor;
+
 import com.gmail.czzsunset.xinterphone.R;
 import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper;
 import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper.MatesTable;
 import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper.TraceTable;
 import com.gmail.czzsunset.xinterphone.model.User;
 import com.gmail.czzsunset.xinterphone.net.NetOperation;
-
-import java.util.List;
 
 public class TabGroup extends ListFragment implements OnMenuItemClickListener ,
 //                                                    OnQueryTextListener, 

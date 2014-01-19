@@ -1,15 +1,7 @@
 package com.gmail.czzsunset.xinterphone.ui;
 
-import com.gmail.czzsunset.xinterphone.R;
-import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper.MatesTable;
-import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper.TraceTable;
-import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
-import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
-
 import java.lang.reflect.Field;
 import java.util.Date;
-
-
 
 import android.database.Cursor;
 import android.location.Location;
@@ -18,13 +10,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
-
-
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -32,6 +21,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+
+import com.gmail.czzsunset.xinterphone.R;
+import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper.MatesTable;
+import com.gmail.czzsunset.xinterphone.lib.DatabaseHelper.TraceTable;
+import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
+import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
 
 public class TabMap extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> { 
 

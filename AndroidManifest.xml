@@ -128,14 +128,14 @@
         
        -->
                 
-        <!-- 
+        
         <service 
-           	android:name="com.gmail.czzsunset.interphonemap2.FpaService"
+           	android:name="com.gmail.czzsunset.xinterphone.FpaService"
            	android:permission="android.permission.ACCESS_FINE_LOCATION"
            	android:exported="false">
             
         </service>        
-        -->
+       
         
         <!-- This is a debug KEY -->
         <meta-data
@@ -154,7 +154,7 @@
         -->
         <provider 
             android:name="com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseProvider"
-            android:authorities="gmail.xsunset.xinterphone"
+            android:authorities="com.gmail.czzsunset.xinterphone"
             android:exported="false"
             >
             
@@ -163,7 +163,10 @@
         
 		<meta-data android:name="com.google.android.gms.version"
            android:value="@integer/google_play_services_version" />
-        
+		
+		<receiver android:name="com.gmail.czzsunset.xinterphone.FpaService$LocUpdateFromPhoneBroadcastReceiver">
+
+		</receiver>
     </application>
 
 </manifest>

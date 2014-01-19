@@ -16,14 +16,14 @@
 
 package com.gmail.czzsunset.xinterphone.locations;
 
+import android.content.Context;
+import android.location.LocationManager;
+
 import com.gmail.czzsunset.xinterphone.Constants;
 import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
 import com.gmail.czzsunset.xinterphone.locations.base.IStrictMode;
 import com.gmail.czzsunset.xinterphone.locations.base.LocationUpdateRequester;
 import com.gmail.czzsunset.xinterphone.locations.base.SharedPreferenceSaver;
-
-import android.content.Context;
-import android.location.LocationManager;
 
 /**
  * Factory class to create the correct instances

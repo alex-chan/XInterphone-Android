@@ -5,17 +5,7 @@ package com.gmail.czzsunset.xinterphone.ui;
 
 
 
-import com.gmail.czzsunset.xinterphone.R;
-import com.gmail.czzsunset.xinterphone.FpaService;
-import com.gmail.czzsunset.xinterphone.Protocol;
-import com.google.android.gms.maps.model.LatLng;
-
-
-
-
-
 import android.annotation.TargetApi;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,12 +18,15 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+
+import com.gmail.czzsunset.xinterphone.FpaService;
+import com.gmail.czzsunset.xinterphone.Protocol;
+import com.gmail.czzsunset.xinterphone.R;
+import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends ActionBarActivity    {
 

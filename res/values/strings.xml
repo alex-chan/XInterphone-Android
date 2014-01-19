@@ -120,6 +120,8 @@
    <string name="pref_group_id">队伍编号</string>
    <string name="pref_interphone_freq">对讲频率</string>               
    <string name="pref_my_code">个人编号</string>     
+   
+   <string name="pref_update_interval">位置更新时间间隔</string>
 
 </resources>
 

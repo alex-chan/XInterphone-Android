@@ -1,6 +1,5 @@
 package com.gmail.czzsunset.xinterphone.ui;
 
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,13 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.gmail.czzsunset.xinterphone.R;
 import com.gmail.czzsunset.xinterphone.App;
-import com.gmail.czzsunset.xinterphone.Constants;
+import com.gmail.czzsunset.xinterphone.R;
 import com.gmail.czzsunset.xinterphone.model.Group;
 import com.gmail.czzsunset.xinterphone.net.NetOperation;
-
-import java.util.prefs.Preferences;
 
 public class CreateGroupActivity extends ActionBarActivity {
     

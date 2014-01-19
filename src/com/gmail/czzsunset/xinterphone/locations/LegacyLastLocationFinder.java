@@ -18,8 +18,6 @@ package com.gmail.czzsunset.xinterphone.locations;
 
 import java.util.List;
 
-import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
-
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
@@ -27,6 +25,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
 
 /**
  * Legacy implementation of Last Location Finder for all Android platforms 

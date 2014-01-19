@@ -10,8 +10,6 @@
 			<attribute name="source_encoding" value="UTF-8"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/google-play-services_lib"/>
 	<classpathentry kind="lib" path="/google-play-services_lib/libs/google-play-services.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/android-support-v7-appcompat"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

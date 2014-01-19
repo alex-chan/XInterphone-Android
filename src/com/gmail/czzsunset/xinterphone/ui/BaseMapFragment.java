@@ -5,23 +5,18 @@ package com.gmail.czzsunset.xinterphone.ui;
 
 
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Paint.Align;
+import android.graphics.Rect;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,13 +24,10 @@ import android.view.ViewGroup;
 import com.gmail.czzsunset.xinterphone.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMapOptions;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -72,22 +64,8 @@ public class BaseMapFragment  extends SupportMapFragment {
 		
 	public static BaseMapFragment newInstance(){
 		
-		if( fragment != null){
-			Log.d(TAG, "A BaseMapFragment already exists, return it");
-			return fragment;
-		}
 		
-		Log.d(TAG,"Initiate a new  BaseMapFragment instance");
-			
-	    	
-		fragment = new BaseMapFragment();
-		
-
-		/*
-		Bundle args = new Bundle();
-		args.putDoubleArray(ARG_MAP_LATLNG, latlng);
-		
-		fragment.setArguments(args);*/
+		fragment = (BaseMapFragment) SupportMapFragment.newInstance();
 		
 		return fragment;
 				

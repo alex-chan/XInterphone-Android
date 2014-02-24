@@ -61,7 +61,10 @@ public class FpaService extends Service implements LocationListener  {
     PendingIntent reqLocUpdatePendingIntent;
     
     
-    public class LocUpdateFromPhoneBroadcastReceiver extends BroadcastReceiver{
+    public static class LocUpdateFromPhoneBroadcastReceiver extends BroadcastReceiver{
+    	
+ 
+    	
     	@Override
 		public void onReceive(Context context, Intent intent){
 			String action = intent.getAction();

@@ -3,6 +3,7 @@ package com.gmail.czzsunset.xinterphone.ui;
 import java.util.Date;
 
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.gmail.czzsunset.xinterphone.FpaService;
 import com.gmail.czzsunset.xinterphone.Protocol;
@@ -71,7 +73,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 		@Override
 		public void onLocationChanged(Location location) {
 			// TODO Auto-generated method stub
-			Log.d(TAG, "A location fix coming..." + location);
+			Log.i(TAG, "A location fix coming..." + location);
 			if(location != null){
 				LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
 				
@@ -116,7 +118,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 			// TODO Auto-generated method stub
 			String action = intent.getAction();
 			
-			Log.d(TAG, "receieved action"+action);
+			Log.d(TAG, "protocolReceiver receieved action:"+action);
 			
 			if( Protocol.ACTION_UPDATE_PEER_LOCATION.equals(action)){
 				// Update the location of peer 
@@ -148,15 +150,12 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.i(TAG,"onCreate");
+		
 		super.onCreate(savedInstanceState);
 		
 		
-		int ret = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-		if( ret !=  ConnectionResult.SUCCESS){
-			
-			GooglePlayServicesUtil.getErrorDialog(ret, this, 0).show();
-			return ;
-		}
+
 		
 		
 		setContentView(R.layout.simple_activity_main);
@@ -166,7 +165,8 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 		setupActionBar();
 		
 		mDbHelper = new SimpleDatabaseHelper(this);
-		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);		
+		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
 		mLocationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 		
 		
@@ -178,8 +178,6 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 		registerServiceUpdate();
 		startService();
 		
-		
-//		requestLocationUpdate();
 
 	}
 
@@ -334,6 +332,22 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 		
 		super.onResume();
 		
+		int ret = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+		if( ret !=  ConnectionResult.SUCCESS){
+			if (GooglePlayServicesUtil.isUserRecoverableError(ret)) {
+				Dialog dialog = GooglePlayServicesUtil.getErrorDialog(ret, this,66);
+				dialog.show();
+				
+		    } else {
+		      Toast.makeText(this, "This device is not supported.", 
+		          Toast.LENGTH_LONG).show();
+		      finish();
+		    }						
+			
+			return ;
+		}
+		
+		
 		if( mLastLocation !=null ){
 			addMarker(mLastLocation.getLatitude(),mLastLocation.getLongitude(),
 					0,null,null, false);	
@@ -367,7 +381,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
         // Swap the new cursor in.  (The framework will take care of closing the
         // old cursor once we return.)
 //        mAdapter.swapCursor(data);
-        Log.d(TAG, "onLoadFinished." + "get "+data.getCount() + " records");
+        Log.i(TAG, "onLoadFinished." + "get "+data.getCount() + " records");
         
     	data.moveToFirst();
     	while(!data.isAfterLast()){
@@ -381,7 +395,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
     				data.getColumnIndex(SimpleTraceTable.LONGITUDE ));
 //    		Log.d(TAG, "member " + indexInGroup + " at lat:"+lat+" lng:"+lng);
     		
-    		boolean isSelf = false;
+    		boolean isSelf = false;    		
     		int myCode = mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
     		if( indexInGroup == myCode){
     			isSelf = true;

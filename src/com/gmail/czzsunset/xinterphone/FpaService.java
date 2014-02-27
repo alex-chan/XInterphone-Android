@@ -68,18 +68,13 @@ public class FpaService extends Service implements LocationListener  {
     	@Override
 		public void onReceive(Context context, Intent intent){
 			String action = intent.getAction();
-			Log.d(TAG, "received action" + action);
+			Log.d(TAG, "LocUpdateFromPhoneBroadcastReceiver received action" + action);
 			
 			
 		}
     }
     
-    public LocUpdateFromPhoneBroadcastReceiver locUpdate = new LocUpdateFromPhoneBroadcastReceiver();
-    
-
-	
-	
-    
+//    public LocUpdateFromPhoneBroadcastReceiver locUpdate = new LocUpdateFromPhoneBroadcastReceiver();
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -174,13 +169,12 @@ public class FpaService extends Service implements LocationListener  {
     	
     	Log.d(TAG, "reqLocUpdatePendingIntent" +  reqLocUpdatePendingIntent);
     	
+    	mLocationRequester.requestLocationUpdates(interInMin * 60, 0, criteria, reqLocUpdatePendingIntent);
+
     	
 //    	mLocationManager.requestLocationUpdates(20 * 1000, 0, criteria, reqLocUpdatePendingIntent);
-    	mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20 * 1000, 0, reqLocUpdatePendingIntent);
-    	
-//    	mLocationRequester.requestLocationUpdates(20 * 1000, 0 , criteria, reqLocUpdatePendingIntent); 
-    	
-    	
+//    	mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20 * 1000, 0, reqLocUpdatePendingIntent);    	
+//    	mLocationRequester.requestLocationUpdates(20 * 1000, 0 , criteria, reqLocUpdatePendingIntent);     	    	
     	
     	
     }
@@ -191,18 +185,18 @@ public class FpaService extends Service implements LocationListener  {
     		
     }
 	
-	public void registerLocationUpdateBroadcastReceiver(){
-		
-		Log.i(TAG, "register location update broadcast receiver");
-
-		IntentFilter intentFilter = new IntentFilter();
-		
-		registerReceiver(locUpdate,intentFilter);
-		
-	}
-	public void unregisterLocationUpdateBroadcastReceiver(){
-		unregisterReceiver(locUpdate);
-	}
+//	public void registerLocationUpdateBroadcastReceiver(){
+//		
+//		Log.i(TAG, "register location update broadcast receiver");
+//
+//		IntentFilter intentFilter = new IntentFilter();
+//		
+//		registerReceiver(locUpdate,intentFilter);
+//		
+//	}
+//	public void unregisterLocationUpdateBroadcastReceiver(){
+//		unregisterReceiver(locUpdate);
+//	}
 	
 	/**
 	 * Show a notification on StatusBar
@@ -302,7 +296,7 @@ public class FpaService extends Service implements LocationListener  {
 	public void onLocationChanged(Location location) {
 		// TODO Auto-generated method stub
 		
-		Log.d(TAG,"location changed:"+location);
+		Log.i(TAG,"FpaService location changed:"+location);
 		
 		if( location != null){
 			long time = location.getTime();

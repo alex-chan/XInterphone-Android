@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.gmail.czzsunset.xinterphone.R;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -54,13 +55,13 @@ public  class SimpleMapFragment extends SupportMapFragment {
     	
     	CameraPosition camera = new CameraPosition.Builder()
     								.target(latlng)
-    								.zoom(14)    							
+    								.zoom(20)    							
     								.build();
     	
     	
     	opts.camera(camera)
 			.compassEnabled(true)
-			.rotateGesturesEnabled(true)
+			.rotateGesturesEnabled(true)						
 			.tiltGesturesEnabled(true)   ;
 		
 		
@@ -209,7 +210,13 @@ public  class SimpleMapFragment extends SupportMapFragment {
                 		
                 		mMap.setMyLocationEnabled(true);
                 		
-                		mMap.setMapType(mMap.MAP_TYPE_SATELLITE);
+                		float maxZoom = mMap.getMaxZoomLevel();
+                		
+                		
+                		CameraUpdate cam = CameraUpdateFactory.zoomTo(maxZoom);
+                		mMap.moveCamera(cam);
+                		
+//                		mMap.setMapType(mMap.MAP_TYPE_SATELLITE);
                 		
                 		UiSettings mUiSetting = mMap.getUiSettings();	
                     	mUiSetting.setMyLocationButtonEnabled(true);

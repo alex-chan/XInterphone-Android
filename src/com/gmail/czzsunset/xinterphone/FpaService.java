@@ -28,6 +28,7 @@ import com.gmail.czzsunset.xinterphone.lib.USBControl;
 import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
 import com.gmail.czzsunset.xinterphone.locations.base.LocationUpdateRequester;
 import com.gmail.czzsunset.xinterphone.ui.MainActivity;
+import com.gmail.czzsunset.xinterphone.ui.SimpleMainActivity;
 import com.gmail.czzsunset.xinterphone.ui.SimplePrefActivity;
 
 public class FpaService extends Service implements LocationListener  {
@@ -67,8 +68,12 @@ public class FpaService extends Service implements LocationListener  {
     	
     	@Override
 		public void onReceive(Context context, Intent intent){
-			String action = intent.getAction();
-			Log.d(TAG, "LocUpdateFromPhoneBroadcastReceiver received action" + action);
+    		
+    		Bundle bd = intent.getExtras();
+    		Location loc = (Location)bd.get(android.location.LocationManager.KEY_LOCATION_CHANGED);
+    		
+	
+			Log.d(TAG, "LocUpdateFromPhoneBroadcastReceiver received action:" + loc);
 			
 			
 		}
@@ -215,7 +220,7 @@ public class FpaService extends Service implements LocationListener  {
 		// The PendingIntent to launch our activity if the user selects this
 		// notification
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+				new Intent(this, SimpleMainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		mBuilder.setContentIntent(contentIntent);
 

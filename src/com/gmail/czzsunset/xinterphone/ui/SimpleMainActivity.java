@@ -16,6 +16,8 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -146,6 +148,17 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 		
 	};
 	
+	
+	private Handler mHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg){
+			super.handleMessage(msg);
+			switch(msg.what){
+			case 0:
+				break;
+			}
+		}
+	};
 
 
 	@Override
@@ -244,6 +257,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 	
     public void startService(){
     	Log.d(TAG,"startService");
+    	FpaService.SetHandler(mHandler);
     	startService(new Intent(this,
                 FpaService.class));    	
     }	
@@ -382,6 +396,9 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
         // old cursor once we return.)
 //        mAdapter.swapCursor(data);
         Log.i(TAG, "onLoadFinished." + "get "+data.getCount() + " records");
+        int myCode = mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+        
+        Log.d(TAG,"myCode:" + myCode);
         
     	data.moveToFirst();
     	while(!data.isAfterLast()){
@@ -396,11 +413,12 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 //    		Log.d(TAG, "member " + indexInGroup + " at lat:"+lat+" lng:"+lng);
     		
     		boolean isSelf = false;    		
-    		int myCode = mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+    		
     		if( indexInGroup == myCode){
-    			isSelf = true;
+    			Log.i(TAG, "Is myself...");
+    			isSelf = true;    			
     		}
-    		addMarker(lat,lng,indexInGroup,null,null, true);
+    		addMarker(lat,lng,indexInGroup,null,null, isSelf);
     		
     		data.moveToNext();
     	}

@@ -213,7 +213,7 @@ public  class SimpleMapFragment extends SupportMapFragment {
                 		float maxZoom = mMap.getMaxZoomLevel();
                 		
                 		
-                		CameraUpdate cam = CameraUpdateFactory.zoomTo(maxZoom);
+                		CameraUpdate cam = CameraUpdateFactory.zoomTo(maxZoom - 2);
                 		mMap.moveCamera(cam);
                 		
 //                		mMap.setMapType(mMap.MAP_TYPE_SATELLITE);

@@ -29,6 +29,7 @@ import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationF
 import com.gmail.czzsunset.xinterphone.locations.base.LocationUpdateRequester;
 import com.gmail.czzsunset.xinterphone.ui.MainActivity;
 import com.gmail.czzsunset.xinterphone.ui.SimpleMainActivity;
+import com.gmail.czzsunset.xinterphone.ui.SimpleMapFragment;
 import com.gmail.czzsunset.xinterphone.ui.SimplePrefActivity;
 
 public class FpaService extends Service implements LocationListener  {
@@ -58,9 +59,17 @@ public class FpaService extends Service implements LocationListener  {
     
     
     private LocationUpdateRequester mLocationRequester;
-    SharedPreferences mSharedPref ;
+    static SharedPreferences mSharedPref ;
     PendingIntent reqLocUpdatePendingIntent;
     
+    
+    private static SimpleDatabaseHelper mDbHelper;
+   
+    private static Handler mHandler;
+    
+    public static void SetHandler(Handler handler){
+    	mHandler = handler;
+    }
     
     public static class LocUpdateFromPhoneBroadcastReceiver extends BroadcastReceiver{
     	
@@ -70,10 +79,15 @@ public class FpaService extends Service implements LocationListener  {
 		public void onReceive(Context context, Intent intent){
     		
     		Bundle bd = intent.getExtras();
-    		Location loc = (Location)bd.get(android.location.LocationManager.KEY_LOCATION_CHANGED);
+    		Location location = (Location)bd.get(android.location.LocationManager.KEY_LOCATION_CHANGED);
     		
 	
-			Log.d(TAG, "LocUpdateFromPhoneBroadcastReceiver received action:" + loc);
+			Log.d(TAG, "LocUpdateFromPhoneBroadcastReceiver received action:" + location);
+			
+			int memberId =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+			
+			mDbHelper.appendTraceRecord(memberId, location.getTime(), location.getLatitude(),
+																location.getLongitude());	
 			
 			
 		}
@@ -100,6 +114,8 @@ public class FpaService extends Service implements LocationListener  {
 		mLocationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 		
 		
+		mDbHelper = new SimpleDatabaseHelper(this);
+		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 //		registerLocationUpdateBroadcastReceiver();
 		
 		requestLocationUpdate();
@@ -174,7 +190,7 @@ public class FpaService extends Service implements LocationListener  {
     	
     	Log.d(TAG, "reqLocUpdatePendingIntent" +  reqLocUpdatePendingIntent);
     	
-    	mLocationRequester.requestLocationUpdates(interInMin * 60, 0, criteria, reqLocUpdatePendingIntent);
+    	mLocationRequester.requestLocationUpdates(interInMin * 1000 * 2, 0, criteria, reqLocUpdatePendingIntent);
 
     	
 //    	mLocationManager.requestLocationUpdates(20 * 1000, 0, criteria, reqLocUpdatePendingIntent);

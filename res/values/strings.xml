@@ -111,7 +111,7 @@
         <string name="exit">退出</string>
         <string name="update">更新</string>
         <string name="group_id">队伍号</string>
-        <string name="location_update_interval">位置更新时间间隔</string>
+        <string name="location_update_interval">广播自己位置时间间隔</string>
         <string name="interphone_freq">对讲频率</string>
         <string name="interphone_encrypt_type">加密方式</string>
         <string name="minute_3">3分钟</string>
@@ -119,9 +119,8 @@
         
    <string name="pref_group_id">队伍编号</string>
    <string name="pref_interphone_freq">对讲频率</string>               
-   <string name="pref_my_code">个人编号</string>     
-   
-   <string name="pref_update_interval">位置更新时间间隔</string>
+   <string name="pref_my_code">个人编号</string>        
+   <string name="pref_broadcast_interval">广播自己位置间隔时间</string>
 
 </resources>
 

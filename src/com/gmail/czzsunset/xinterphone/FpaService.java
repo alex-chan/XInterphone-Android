@@ -4,6 +4,7 @@ package com.gmail.czzsunset.xinterphone;
 
 
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -62,6 +63,8 @@ public class FpaService extends Service implements LocationListener  {
 	public static final int MSG_EXIT_APP   = 0xe000004;
 	
 	
+	
+	
 	private final Messenger mMessenger = new Messenger(new IncomingMessageHandler()); // Target we publish for clients to send messages to IncomingHandler
 	
 	
@@ -81,15 +84,6 @@ public class FpaService extends Service implements LocationListener  {
     
     
     
-    
-    
-    private static SimpleDatabaseHelper mDbHelper;   
-    private static Handler mHandler;
-    
-    public static void SetHandler(Handler handler){
-    	mHandler = handler;
-    }
-    
     public static class LocUpdateFromHost extends BroadcastReceiver{
     	
  
@@ -106,7 +100,8 @@ public class FpaService extends Service implements LocationListener  {
     			double lng = location.getLongitude();
     			Log.d(TAG, "LocUpdateFromHost received a new location fix, lat:"+lat+" lng:"+lng );
     			
-    			int userCode =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+    			int userCode = Integer.valueOf( mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") );
+    			// int userCode =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
     			
     			Bundle bundle = new Bundle();
     			bundle.putInt("userCode", userCode);
@@ -144,8 +139,11 @@ public class FpaService extends Service implements LocationListener  {
 		Log.d(TAG, "onCreate");
 
 		showNotification();		
-//		setupUSB();		
+
 		initMembers();
+		
+		setupUSB();		
+		testUSB();
 		
 		requestLocationUpdate(1 * 60 * 1000);
 		
@@ -162,7 +160,7 @@ public class FpaService extends Service implements LocationListener  {
 		Log.i(TAG,"service destroy");
 		isRunning = false;
 		
-//		closeUSB();		
+		closeUSB();		
 		
 		
 		cancelLocationUpdate();
@@ -177,6 +175,8 @@ public class FpaService extends Service implements LocationListener  {
 		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);	
 		mLocationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		protocol = new Protocol();
 		
 	}
 	
@@ -196,11 +196,47 @@ public class FpaService extends Service implements LocationListener  {
 		console("Done\n");	
 	}
 	
-	
+	private void testUSB(){
+		
+		Thread thd = new Thread(new Runnable(){
+			public void run() {
+				
+				Log.d(TAG, "receiving msg from peer...");
+				try {
+					Thread.sleep( 30 * 1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				byte []msg = new byte[27];
+				
+				ByteBuffer bb = ByteBuffer.allocate(27);
+				bb.put((byte) 0x05);
+				bb.put((byte) 0x00);
+				bb.put((byte) 0x11);
+				
+				bb.putLong(0x00252335);
+				bb.putFloat((float) 22.581);
+				bb.putFloat((float) 113.95);
+				bb.putFloat((float) 20);
+				
+				msg = bb.array();				
+				
+				usbConnection.onReceive(msg);
+				
+			}				
+		});
+		thd.start();
+		
+		
+		
+		
+	}
 	
 	private void requestLocationUpdate(){
-		int interInMin = Integer.parseInt( mSharedPref.getString(SimplePrefActivity.KEY_PREF_UPDATE_INTERVAL, "5") );		
-		requestLocationUpdate(1 * 60 * 1000);
+		int interInMin = Integer.valueOf( mSharedPref.getString(SimplePrefActivity.KEY_PREF_UPDATE_INTERVAL, "5") );		
+		requestLocationUpdate(interInMin * 60 * 1000);
 	}
 	
     private void requestLocationUpdate(long intervalMs){
@@ -258,7 +294,7 @@ public class FpaService extends Service implements LocationListener  {
 	
 
 	
-	private  void sendMessageToUI(int what, Bundle bundle) {
+	public  void sendMessageToUI(int what, Bundle bundle) {
 		Iterator<Messenger> messengerIterator = mClients.iterator();		
 		while(messengerIterator.hasNext()) {
 			Messenger messenger = messengerIterator.next();
@@ -334,9 +370,13 @@ public class FpaService extends Service implements LocationListener  {
 		}
 
 		@Override
-		public void onReceive(byte[] msg) {			
-			protocol = new Protocol(self);
-			protocol.processInput(msg);					
+		public void onReceive(byte[] msg) {	
+			Log.d(TAG,"onReceive:"+msg.toString());
+			protocol.processInput(msg);		
+			if(protocol.what != -1){
+				self.sendMessageToUI(protocol.getMsgType(), protocol.getBundle());
+				protocol.clear();
+			}
 			
 		}
 

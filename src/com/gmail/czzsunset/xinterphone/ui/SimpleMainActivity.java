@@ -258,7 +258,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 	
     public void startService(){
     	Log.d(TAG,"startService");
-    	FpaService.SetHandler(mHandler);
+    	
     	startService(new Intent(this,
                 FpaService.class));    	
     }	

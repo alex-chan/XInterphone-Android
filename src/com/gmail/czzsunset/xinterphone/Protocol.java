@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 public class Protocol {
@@ -11,10 +12,10 @@ public class Protocol {
 
 	
 	// Protocol in fpip
-	public final static int BROADCAST_LOCATION 	= 5;
-	public final static int UNICAST_LOCATION 	= 6;
-	public final static int BROADCAST_MESSAGE 	= 7;
-	public final static int UNICAST_MESSAGE		= 8;	
+	public final static int BROADCAST_LOCATION 	= 0x05;
+	public final static int UNICAST_LOCATION 	= 0x06;
+	public final static int BROADCAST_MESSAGE 	= 0x07;
+	public final static int UNICAST_MESSAGE		= 0x08;	
 	
 	
 	
@@ -42,13 +43,16 @@ public class Protocol {
 
 	
 	private final static String TAG = "Protocol";
-	private Context context;
 	
-	private LocalBroadcastManager lbcManager;
+//	private LocalBroadcastManager lbcManager;
 	
-	Protocol(Context context){
-		this.context = context;		
-		lbcManager =  LocalBroadcastManager.getInstance(context); 
+	
+	
+	public int what = -1;
+	public Bundle bundle = null;
+	
+	Protocol(){
+	
 	}
 	
 	
@@ -59,7 +63,7 @@ public class Protocol {
 
 		int version =  (msg[0] >> 6);
 		int command =  (msg[0] << 2 >> 2 );
-		Log.d(TAG, "version:"+version+" command:"+command );
+		Log.d(TAG, "FPA version:"+version+" command:"+command );
 		if( version == 0){ // Currently, only version 00 implemented
 			int groupId = (int)msg[1];
 			int userId = (int)msg[2];
@@ -67,6 +71,17 @@ public class Protocol {
 			
 			switch(command){
 			case BROADCAST_LOCATION:
+				/*
+				  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+				| ver  |0  0  0  1  0  1|       group id         |        user id        |    millionSecond     ~         				 
+				|                                  m i l l i o n S e c o n d                                    ~                        
+				|                           millionSecond                                |    latitude			~
+				|                             latitude                                   |    longitude         ~
+				|                             longitude                                  |    altitude          ~
+				|                             altitude                                   |    accuracy          ~
+				|                             accuracy                                   |				
+				*/
+				
 				long mills = ba.getLong(3);
 				float latitude = ba.getFloat(11);
 				float longitude = ba.getFloat(15);
@@ -74,17 +89,28 @@ public class Protocol {
 				float accuracy = ba.getFloat(23);
 				
 				
-				Intent intent = new Intent(ACTION_UPDATE_PEER_LOCATION);
-				intent.putExtra(EXTRA_GROUP_ID, groupId);
-				intent.putExtra(EXTRA_USER_ID, userId);
-				intent.putExtra(EXTRA_MILLIS, mills);
-				intent.putExtra(EXTRA_LATITUDE, latitude);
-				intent.putExtra(EXTRA_LONGITUDE, longitude);
-				intent.putExtra(EXTRA_ALTITUDE, altitude);
-				intent.putExtra(EXTRA_ACCURACY, accuracy);
-
-				Log.d(TAG, "send intent broadcast location ");
-				lbcManager.sendBroadcast(intent);
+				what = FpaService.MSG_DRAW_MARKER;
+				bundle = new Bundle();
+								    			
+    			bundle.putInt("userCode", userId);
+    			bundle.putDouble("lat", latitude);
+    			bundle.putDouble("lng", longitude);
+    			bundle.putDouble("timestamp", mills);
+		
+				
+//				Intent intent = new Intent(ACTION_UPDATE_PEER_LOCATION);
+//				intent.putExtra(EXTRA_GROUP_ID, groupId);
+//				intent.putExtra(EXTRA_USER_ID, userId);
+//				intent.putExtra(EXTRA_MILLIS, mills);
+//				intent.putExtra(EXTRA_LATITUDE, latitude);
+//				intent.putExtra(EXTRA_LONGITUDE, longitude);
+//				intent.putExtra(EXTRA_ALTITUDE, altitude);
+//				intent.putExtra(EXTRA_ACCURACY, accuracy);
+//
+//				Log.d(TAG, "send intent broadcast location ");
+//				lbcManager.sendBroadcast(intent);
+				
+				
 				
 				
 				break;
@@ -102,7 +128,22 @@ public class Protocol {
 	}
 
 	
+	public void processOutput(){
+		
+	}
 	
+	public int getMsgType(){
+		return what;
+	}
+	
+	public Bundle getBundle(){
+		return bundle;
+	}
+	
+	public void clear(){
+		what = -1;
+		bundle = null;
+	}
 
 
 

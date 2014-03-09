@@ -85,8 +85,7 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 				
 				//mMapfrag.animateToLocation(latlng, 1000);			
 				
-				int memberId =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
-						
+				int myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));		
 				
 			}
 				
@@ -169,8 +168,8 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 		
 		
 		if( mLastLocation !=null ){
-			Log.d(TAG, "add self marker, and animate to it");
-			int userCode =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+			Log.d(TAG, "add self marker, and animate to it"); 
+			int userCode = Integer.valueOf( mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") );
 			addMarker(userCode, mLastLocation.getLatitude(),mLastLocation.getLongitude(),
 					null,null, true);	
 			mMapfrag.animateToLocation(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 500);
@@ -412,25 +411,41 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 	private class IncomingMessageHandler extends Handler {		
 		@Override
 		public void handleMessage(Message msg) {
-			Log.d(TAG,"IncomingHandler:handleMessage");
+			Log.d(TAG,"IncomingHandler:msg "+msg.what);
+			
+			Bundle bundle;
+			int userCode,myCode;
+			double newLat,newLng, timestamp;
+			
 			switch (msg.what) {
 			case FpaService.MSG_DRAW_MARKER:
 				
-				// addMarker() called here
+			    // addMarker() called here
+				 bundle = (Bundle) msg.getData();
+				
+				 userCode = bundle.getInt("userCode");
+				 newLat = bundle.getDouble("lat");
+				 newLng = bundle.getDouble("lng");
+				 timestamp = bundle.getDouble("timestamp");
+				
+				 myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));				
+				
+				addMarker(userCode,newLat,newLng, null, null, myCode == userCode);
+				
 				break;
 				
 			case FpaService.MSG_UPDATE_MARKER:
 				
 				// updateMarker() called here
 				
-				Bundle bundle = (Bundle) msg.getData();
+				 bundle = (Bundle) msg.getData();
 				
-				int userCode = bundle.getInt("userCode");
-				double newLat = bundle.getDouble("lat");
-				double newLng = bundle.getDouble("lng");
-				double timestamp = bundle.getDouble("timestamp");
+				 userCode = bundle.getInt("userCode");
+				 newLat = bundle.getDouble("lat");
+				 newLng = bundle.getDouble("lng");
+				 timestamp = bundle.getDouble("timestamp");
 				
-				int myCode =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+				 myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));
 				
 				
 				moveMarker(userCode,newLat,newLng, myCode == userCode);

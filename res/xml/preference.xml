@@ -2,28 +2,29 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <EditTextPreference 
         android:title="@string/pref_interphone_freq" 
-        android:key="interphone_freq"
+        android:key="pref_interphone_freq"
         android:defaultValue="400.0000" 
         android:summary="400.0000MHz"/>
     
     <EditTextPreference 
         android:title="@string/pref_group_id" 
-        android:key="group_id" 
+        android:key="pref_group_id" 
+        android:inputType="number"
         android:defaultValue="0" 
         android:summary="#0"/>
         
     <EditTextPreference
-        android:key="user_id" 
-        android:title="@string/pref_my_code" 
+        android:key="pref_my_code" 
+        android:title="@string/pref_my_code"
+        android:inputType="number" 
         android:defaultValue="0" 
         android:summary="#0"/>
     
     
     <EditTextPreference
-        android:key="key_update_interval" 
-        android:title="@string/pref_update_interval" 
+        android:key="pref_broadcast_interval" 
+        android:title="@string/pref_broadcast_interval" 
         android:inputType="number"
-
         android:summary="5min"/>    
     
 

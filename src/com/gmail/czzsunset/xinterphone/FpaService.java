@@ -4,6 +4,10 @@ package com.gmail.czzsunset.xinterphone;
 
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -18,6 +22,9 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -31,6 +38,7 @@ import com.gmail.czzsunset.xinterphone.ui.MainActivity;
 import com.gmail.czzsunset.xinterphone.ui.SimpleMainActivity;
 import com.gmail.czzsunset.xinterphone.ui.SimpleMapFragment;
 import com.gmail.czzsunset.xinterphone.ui.SimplePrefActivity;
+import com.google.android.gms.maps.model.LatLng;
 
 public class FpaService extends Service implements LocationListener  {
 
@@ -46,16 +54,25 @@ public class FpaService extends Service implements LocationListener  {
 	private USBControlServer usbConnection;	
 
 	
-    public static final String ACTION_STOP_SERVICE =
-    		 	Constants.PACKAGE_PREFIX + "action.STOP_SERVICE";
     
-    public static final String ACTION_HOST_LOC_UPDATE_RECEIVED =     		
-   		 		Constants.PACKAGE_PREFIX +  "action.HOST_LOC_UPDATE_RECEIVED";
-
-
-    private Protocol protocol;
-    
-    public Context self = this;
+    public static final int MSG_UNREGISTER_CLIENT = 0xe000000;
+	public static final int MSG_REGISTER_CLIENT   = 0xe000001;
+	public static final int MSG_DRAW_MARKER 	  = 0xe000002;
+	public static final int MSG_UPDATE_MARKER	  = 0xe000003;
+	public static final int MSG_EXIT_APP   = 0xe000004;
+	
+	
+	private final Messenger mMessenger = new Messenger(new IncomingMessageHandler()); // Target we publish for clients to send messages to IncomingHandler
+	
+	
+	
+	private static boolean isRunning = false;
+	private List<Messenger> mClients = new ArrayList<Messenger>(); // Keeps track of all current registered clients.	
+	
+	
+	
+	private Protocol protocol;    
+    public static FpaService self = null;
     
     
     private LocationUpdateRequester mLocationRequester;
@@ -63,15 +80,17 @@ public class FpaService extends Service implements LocationListener  {
     PendingIntent reqLocUpdatePendingIntent;
     
     
-    private static SimpleDatabaseHelper mDbHelper;
-   
+    
+    
+    
+    private static SimpleDatabaseHelper mDbHelper;   
     private static Handler mHandler;
     
     public static void SetHandler(Handler handler){
     	mHandler = handler;
     }
     
-    public static class LocUpdateFromPhoneBroadcastReceiver extends BroadcastReceiver{
+    public static class LocUpdateFromHost extends BroadcastReceiver{
     	
  
     	
@@ -81,13 +100,27 @@ public class FpaService extends Service implements LocationListener  {
     		Bundle bd = intent.getExtras();
     		Location location = (Location)bd.get(android.location.LocationManager.KEY_LOCATION_CHANGED);
     		
-	
-			Log.d(TAG, "LocUpdateFromPhoneBroadcastReceiver received action:" + location);
+    		if(location != null ){
+    			
+    			double lat = location.getLatitude();
+    			double lng = location.getLongitude();
+    			Log.d(TAG, "LocUpdateFromHost received a new location fix, lat:"+lat+" lng:"+lng );
+    			
+    			int userCode =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+    			
+    			Bundle bundle = new Bundle();
+    			bundle.putInt("userCode", userCode);
+    			bundle.putDouble("lat", lat);
+    			bundle.putDouble("lng", lng);
+    			bundle.putDouble("timestamp", location.getTime());
+    			self.sendMessageToUI(MSG_UPDATE_MARKER, bundle);    			
+    			
+    		}
+
 			
-			int memberId =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
-			
-			mDbHelper.appendTraceRecord(memberId, location.getTime(), location.getLatitude(),
-																location.getLongitude());	
+//			
+//			mDbHelper.appendTraceRecord(memberId, location.getTime(), location.getLatitude(),
+//																location.getLongitude());	
 			
 			
 		}
@@ -97,9 +130,12 @@ public class FpaService extends Service implements LocationListener  {
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
-		return null;
+		Log.i(TAG, "onBind");
+		return mMessenger.getBinder();
 	}
 
+	
+	
 	
 	@Override
 	public void onCreate(){
@@ -109,40 +145,40 @@ public class FpaService extends Service implements LocationListener  {
 
 		showNotification();		
 //		setupUSB();		
+		initMembers();
 		
-		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);	
-		mLocationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
+		requestLocationUpdate(1 * 60 * 1000);
 		
-		
-		mDbHelper = new SimpleDatabaseHelper(this);
-		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-//		registerLocationUpdateBroadcastReceiver();
-		
-		requestLocationUpdate();
+		self = this;
 		
 		
 	}
+	
+	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 
 		Log.i(TAG,"service destroy");
+		isRunning = false;
 		
 //		closeUSB();		
 		
 		
-		cancelRequestLocationUpdate();
-//		unregisterLocationUpdateBroadcastReceiver();
-		
-//		mLocationManager.removeUpdates(this);
-		
-		//System.runFinalizersOnExit(true);
+		cancelLocationUpdate();
+
 		System.exit(0);
 		
 		
 	}
 	
 	
+	private void initMembers(){
+		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);	
+		mLocationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
+		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		
+	}
 	
 	private void setupUSB(){
 
@@ -162,62 +198,35 @@ public class FpaService extends Service implements LocationListener  {
 	
 	
 	
-    private void requestLocationUpdate(){
+	private void requestLocationUpdate(){
+		int interInMin = Integer.parseInt( mSharedPref.getString(SimplePrefActivity.KEY_PREF_UPDATE_INTERVAL, "5") );		
+		requestLocationUpdate(1 * 60 * 1000);
+	}
+	
+    private void requestLocationUpdate(long intervalMs){
     	
-    	Log.d(TAG, "requestLocationUpdate");
-    	
-    	
-    	
+    	Log.d(TAG, "requestLocationUpdate, intervalMs:" + intervalMs);
+    	    	    	
     	mLocationRequester = PlatformSpecificImplementationFactory.getLocationUpdateRequester(mLocationManager);
-    	
-    	int interInMin = Integer.parseInt( mSharedPref.getString(SimplePrefActivity.KEY_PREF_UPDATE_INTERVAL, "5") );
+    	    	
     	Criteria criteria = new Criteria();
     	criteria.setAccuracy(Criteria.ACCURACY_LOW);
-    	
-    	
-//    	mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20 * 1000, 0, this);
-    	
-//    	return;
-    	
-    	
-    	
-//    	Intent intent = new Intent(ACTION_HOST_LOC_UPDATE_RECEIVED );
-    	Intent intent = new Intent(this, LocUpdateFromPhoneBroadcastReceiver.class);
-    	
-    	
+    	    	
+    	Intent intent = new Intent(this, LocUpdateFromHost.class);    	    	
     	reqLocUpdatePendingIntent = PendingIntent.getBroadcast(this,
-    														0, intent, PendingIntent.FLAG_UPDATE_CURRENT);    	
+    														0, intent, PendingIntent.FLAG_UPDATE_CURRENT);    	   
     	
-    	Log.d(TAG, "reqLocUpdatePendingIntent" +  reqLocUpdatePendingIntent);
-    	
-    	mLocationRequester.requestLocationUpdates(interInMin * 1000 * 2, 0, criteria, reqLocUpdatePendingIntent);
-
-    	
-//    	mLocationManager.requestLocationUpdates(20 * 1000, 0, criteria, reqLocUpdatePendingIntent);
-//    	mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20 * 1000, 0, reqLocUpdatePendingIntent);    	
-//    	mLocationRequester.requestLocationUpdates(20 * 1000, 0 , criteria, reqLocUpdatePendingIntent);     	    	
-    	
+    	mLocationRequester.requestLocationUpdates(intervalMs, 0, criteria, reqLocUpdatePendingIntent);
     	
     }
-    private void cancelRequestLocationUpdate(){
+    private void cancelLocationUpdate(){
     	if(reqLocUpdatePendingIntent != null){
     		reqLocUpdatePendingIntent.cancel();
     	}
     		
     }
 	
-//	public void registerLocationUpdateBroadcastReceiver(){
-//		
-//		Log.i(TAG, "register location update broadcast receiver");
-//
-//		IntentFilter intentFilter = new IntentFilter();
-//		
-//		registerReceiver(locUpdate,intentFilter);
-//		
-//	}
-//	public void unregisterLocationUpdateBroadcastReceiver(){
-//		unregisterReceiver(locUpdate);
-//	}
+
 	
 	/**
 	 * Show a notification on StatusBar
@@ -246,6 +255,72 @@ public class FpaService extends Service implements LocationListener  {
 
 
 
+	
+
+	
+	private  void sendMessageToUI(int what, Bundle bundle) {
+		Iterator<Messenger> messengerIterator = mClients.iterator();		
+		while(messengerIterator.hasNext()) {
+			Messenger messenger = messengerIterator.next();
+			try {
+				// Send data as an Integer				
+				// messenger.send(Message.obtain(null, MSG_SET_INT_VALUE, intvaluetosend, 0));
+				// Send data as a String
+				//Bundle bundle = new Bundle();
+				//bundle.putString("str1", "ab" + intvaluetosend + "cd");
+				//bundle.putDouble("lat", value)
+				Message msg = Message.obtain(null, what);
+				msg.setData(bundle);
+				messenger.send(msg);
+
+			} catch (RemoteException e) {
+				// The client is dead. Remove it from the list.
+				mClients.remove(messenger);
+			}
+		}
+	}
+
+	public static boolean isRunning()
+	{
+		return isRunning;
+	}
+
+
+
+	/**
+	 * Handle incoming messages from MainActivity
+	 */
+	private class IncomingMessageHandler extends Handler { // Handler of incoming messages from clients.
+		@Override
+		public void handleMessage(Message msg) {
+			Log.d(TAG,"handleMessage: " + msg.what);
+			switch (msg.what) {
+			case MSG_REGISTER_CLIENT:
+				mClients.add(msg.replyTo);
+				
+				cancelLocationUpdate();
+				requestLocationUpdate(2000);
+				
+				break;
+				
+			case MSG_UNREGISTER_CLIENT:
+				
+				cancelLocationUpdate();
+				requestLocationUpdate();
+				
+				mClients.remove(msg.replyTo);
+				
+				break;
+			case MSG_EXIT_APP :
+				// 
+				break;
+			default:
+				super.handleMessage(msg);
+			}
+		}
+	}	
+	
+	
 
 
 

@@ -155,6 +155,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 			super.handleMessage(msg);
 			switch(msg.what){
 			case 0:
+				
 				break;
 			}
 		}
@@ -335,7 +336,7 @@ public class SimpleMainActivity extends ActionBarActivity  implements LoaderMana
 			String snippet, boolean isSelf) {
 		
 		if(mMapfrag != null){
-			mMapfrag.addMarker(lat,lng,indexInGroup,name,snippet,isSelf);
+			//mMapfrag.addMarker(lat,lng,indexInGroup,name,snippet,isSelf);
 		}
 	}
 

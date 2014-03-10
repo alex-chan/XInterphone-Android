@@ -3,10 +3,14 @@ package com.gmail.czzsunset.xinterphone.ui;
 import java.util.Date;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -24,6 +28,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
@@ -165,6 +170,40 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 		}
 		
 		
+		if( !isGPSProviderEnabled()){
+			Log.i(TAG,"GPS is not enabled, prompt user to enable it");
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("检测到GPS未打开，是否打开GPS？");
+			builder.setPositiveButton("去打开", new OnClickListener(){
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					Intent intent = new Intent();
+					intent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					try{
+						startActivity(intent);
+					}catch(ActivityNotFoundException ex){
+						intent.setAction(Settings.ACTION_SETTINGS);
+						try{
+							startActivity(intent);
+						}catch(Exception e){
+							
+						}
+					}
+				}
+				
+			}).setNegativeButton("取消", new OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+				
+			}).create().show();
+		}else{
+			Log.d(TAG,"GPS enabled ");
+		}
+		
 		
 		
 		if( mLastLocation !=null ){
@@ -174,6 +213,8 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 					null,null, true);	
 			mMapfrag.animateToLocation(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 500);
 		}
+		
+		
 	}
 		
 	
@@ -239,7 +280,7 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 	private void initMembers(){
 
 		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		mLocationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
+		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     	mLastLocationFinder = PlatformSpecificImplementationFactory.getLastLocationFinder(this);
     	
     	mLastLocationFinder.setChangedLocationListener(new MyLocationListener());    	
@@ -286,6 +327,13 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 	
 	
 
+	
+	private boolean isGPSProviderEnabled(){
+		if( mLocationManager == null){
+			mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);			
+		}
+		return mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);		
+	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	

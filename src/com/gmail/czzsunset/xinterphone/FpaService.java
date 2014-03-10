@@ -94,6 +94,8 @@ public class FpaService extends Service implements LocationListener  {
     		Bundle bd = intent.getExtras();
     		Location location = (Location)bd.get(android.location.LocationManager.KEY_LOCATION_CHANGED);
     		
+    		Log.d(TAG,"onReceive");
+    		
     		if(location != null ){
     			
     			double lat = location.getLatitude();
@@ -246,7 +248,8 @@ public class FpaService extends Service implements LocationListener  {
     	mLocationRequester = PlatformSpecificImplementationFactory.getLocationUpdateRequester(mLocationManager);
     	    	
     	Criteria criteria = new Criteria();
-    	criteria.setAccuracy(Criteria.ACCURACY_LOW);
+    	criteria.setAccuracy(Criteria.ACCURACY_FINE);
+    	
     	    	
     	Intent intent = new Intent(this, LocUpdateFromHost.class);    	    	
     	reqLocUpdatePendingIntent = PendingIntent.getBroadcast(this,
@@ -257,7 +260,9 @@ public class FpaService extends Service implements LocationListener  {
     }
     private void cancelLocationUpdate(){
     	if(reqLocUpdatePendingIntent != null){
+    		Log.d(TAG,"cancel request");
     		reqLocUpdatePendingIntent.cancel();
+    		reqLocUpdatePendingIntent = null;    		
     	}
     		
     }

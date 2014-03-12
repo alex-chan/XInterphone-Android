@@ -45,6 +45,7 @@ import android.widget.Toast;
 import com.gmail.czzsunset.xinterphone.FpaService;
 import com.gmail.czzsunset.xinterphone.Protocol;
 import com.gmail.czzsunset.xinterphone.R;
+import com.gmail.czzsunset.xinterphone.Util;
 import com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseHelper;
 import com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseHelper.SimpleTraceTable;
 import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
@@ -76,7 +77,7 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 	private ServiceConnection mConnection = this;
 	private boolean mIsBound = false; 
     
-    
+    private static SimpleMainActivity2 self ;
     
 
     private class MyLocationListener implements LocationListener{
@@ -125,6 +126,8 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 		Log.i(TAG,"onCreate");
 		
 		super.onCreate(savedInstanceState);
+		
+		self = this;
 						
 		setContentView(R.layout.simple_activity_main);
 		
@@ -134,6 +137,8 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 		
 		doStartService();
 
+		
+		
 //		automaticBind();
 						
 
@@ -209,7 +214,8 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 		if( mLastLocation !=null ){
 			Log.d(TAG, "add self marker, and animate to it"); 
 			int userCode = Integer.valueOf( mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") );
-			addMarker(userCode, mLastLocation.getLatitude(),mLastLocation.getLongitude(),
+			int iUUID = Util.getIUUID(this, 0);
+			addMarker(iUUID, userCode, mLastLocation.getLatitude(),mLastLocation.getLongitude(),
 					null,null, true);	
 			mMapfrag.animateToLocation(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 500);
 		}
@@ -341,10 +347,10 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 	/*
 	 * Add a marker on Map
 	 */
-	public void addMarker(int userCode, double lat, double lng, String name,
+	public void addMarker(int iUUID, int userCode, double lat, double lng, String name,
 			String snippet, boolean isSelf) {
 //		mMapfrag.addMarker(lat, lng, userCode, null, null, isSelf);
-		mMapfrag.addMarker(userCode, lat, lng, null, null,  isSelf ? MarkerColor.RED : MarkerColor.BLUE);
+		mMapfrag.addMarker(iUUID, userCode, lat, lng, null, null,  isSelf ? MarkerColor.RED : MarkerColor.BLUE);
 	}
 	
 	/*
@@ -462,15 +468,39 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 			Log.d(TAG,"IncomingHandler:msg "+msg.what);
 			
 			Bundle bundle;
-			int userCode,myCode;
+			int userCode,myCode,iUUID;
 			double newLat,newLng, timestamp;
 			
 			switch (msg.what) {
+			
+			case FpaService.MSG_DRAW_MARKER_LIST:
+				bundle = (Bundle) msg.getData();
+				int size = bundle.getInt("markerSize");
+				
+				int myIUUID = Util.getIUUID(self, 0);
+				
+				for(int i=0;i<size;i++){
+					Bundle bdl = bundle.getBundle(String.valueOf(i));
+					 iUUID = bdl.getInt("iUUID");
+					 userCode = bdl.getInt("userCode");
+					 newLat = bdl.getDouble("lat");
+					 newLng = bdl.getDouble("lng");
+					 timestamp = bdl.getDouble("timestamp");
+					
+					 
+					 addMarker(iUUID, userCode,newLat,newLng, null, null, myIUUID == iUUID);					
+					
+				}
+				
+				
+				
+				
 			case FpaService.MSG_DRAW_MARKER:
 				
 			    // addMarker() called here
 				 bundle = (Bundle) msg.getData();
 				
+				 iUUID = bundle.getInt("iUUID");
 				 userCode = bundle.getInt("userCode");
 				 newLat = bundle.getDouble("lat");
 				 newLng = bundle.getDouble("lng");
@@ -478,7 +508,7 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 				
 				 myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));				
 				
-				addMarker(userCode,newLat,newLng, null, null, myCode == userCode);
+				 addMarker(iUUID, userCode,newLat,newLng, null, null, myCode == userCode);
 				
 				break;
 				
@@ -487,7 +517,7 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 				// updateMarker() called here
 				
 				 bundle = (Bundle) msg.getData();
-				
+				 iUUID = bundle.getInt("iUUID");
 				 userCode = bundle.getInt("userCode");
 				 newLat = bundle.getDouble("lat");
 				 newLng = bundle.getDouble("lng");
@@ -496,7 +526,7 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 				 myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));
 				
 				
-				moveMarker(userCode,newLat,newLng, myCode == userCode);
+				moveMarker(iUUID,newLat,newLng, myCode == userCode);
 				
 				break;
 			

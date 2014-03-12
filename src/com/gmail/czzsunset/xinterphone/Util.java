@@ -26,11 +26,45 @@ public class Util {
 		return l;
 	}
 	
-	public static final String getUuid(Context context){
+	public static final String getUUID(Context context){
 	    return Installation.id(context);
 	}
+	
+	public static int toIUUID(String UUID){
+		
+		int all = 0;
+		
+		for(int i=0;i<UUID.length();i++){
+			
+			
+			int tmp = 0; 
+			for(int j=0;j<2;j++){
+				if( (i+j) >= UUID.length() ){
+					break;
+				}
+				tmp += (int)UUID.charAt(i+j);
+			}
+			
+			all += tmp;
+			
+		}
+		
+		return all;
+			
+	}
+	
 
-    
+    public static final int getIUUID(Context context, int version){
+    	
+    	String uuid = getUUID(context);
+    	switch(version){
+    	case 0:
+    		// version 00: 8bit iUUID
+    		return toIUUID(uuid);
+    		
+    	}
+    	return -1;
+    }
 	
 
 }

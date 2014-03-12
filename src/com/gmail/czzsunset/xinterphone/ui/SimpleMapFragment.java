@@ -28,6 +28,8 @@ import com.gmail.czzsunset.xinterphone.R;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.Projection;
@@ -49,6 +51,9 @@ public  class SimpleMapFragment extends SupportMapFragment {
 	public static SimpleMapFragment mSimpleFrag;
 	
 	private static MapFragment mMapFrag;
+	
+	
+	private boolean bMapWillFollow = true;
 	
 //	private Map<Integer, Marker> mMarkerDict = new HashMap<Integer, Marker>(); 
 	SparseArray<Marker> mMarkers = new SparseArray<Marker>();
@@ -161,17 +166,17 @@ public  class SimpleMapFragment extends SupportMapFragment {
 
 	
 	
-	public void addMarker(int userCode, double lat, double lng, String name, String snippet, MarkerColor color){
+	public void addMarker(int iUUID, int userCode, double lat, double lng, String name, String snippet, MarkerColor color){
 		
 		
 		Log.d(TAG, "addMarker");
 		Log.d(TAG, "all exists markers:" + mMarkers);
 		if( mMap != null){			
 			
-			Log.d(TAG, "Show :"+ userCode + " " + name +" on lat:" + lat + " lng:" + lng);
+			Log.d(TAG, "Show :"+ userCode + " " + name +" on lat:" + lat + " lng:" + lng + " uuid:" + iUUID);
 									
 			LatLng latlng = new LatLng(lat,lng);
-			Marker marker = mMarkers.get(userCode, null);
+			Marker marker = mMarkers.get(iUUID, null);
 			if(marker != null){
 				// marker already exists
 				marker.setPosition(latlng);
@@ -215,7 +220,7 @@ public  class SimpleMapFragment extends SupportMapFragment {
 		     		.anchor(0.5f, 0.5f));
 			
 			
-			mMarkers.append(userCode, marker);
+			mMarkers.append(iUUID, marker);
 
 			
 		}else{
@@ -233,9 +238,10 @@ public  class SimpleMapFragment extends SupportMapFragment {
 		
 	}  	
 	
-	public void animateMarker(int userCode, double dstLat, double dstLng, long durationMs, boolean mapWillFollow){
-		final Marker marker =  mMarkers.get(userCode);
+	public void animateMarker(int iUUID, double dstLat, double dstLng, long durationMs, boolean mapWillFollow){
+		final Marker marker =  mMarkers.get(iUUID);
 		if(marker != null){
+			Log.d(TAG,"bMapWillFollow:" + bMapWillFollow);
 			animateMarker(marker, dstLat, dstLng, durationMs, false, mapWillFollow);
 		}
 		
@@ -349,7 +355,28 @@ public  class SimpleMapFragment extends SupportMapFragment {
                     	mUiSetting.setMyLocationButtonEnabled(true);
                     	mUiSetting.setCompassEnabled(true);                    	
                     	
-                    	mUiSetting.setAllGesturesEnabled(true);           
+                    	mUiSetting.setAllGesturesEnabled(true);       
+                    	
+                    	
+//                    	mMap.setOnMyLocationButtonClickListener(new OnMyLocationButtonClickListener(){
+//
+//							@Override
+//							public boolean onMyLocationButtonClick() {								
+//								Log.d(TAG,"onMyLocationButtonClick");
+//								bMapWillFollow = true;
+//								return false;
+//							}														                    		
+//                    	});
+//                    	
+//                    	mMap.setOnCameraChangeListener(new OnCameraChangeListener(){
+//
+//							@Override
+//							public void onCameraChange(CameraPosition camPos) {
+//								Log.d(TAG,"onCameraChange:" + camPos);
+//								bMapWillFollow = false;
+//							}
+//                    		
+//                    	});
                     	
                     	
 

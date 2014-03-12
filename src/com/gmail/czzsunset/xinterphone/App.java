@@ -38,7 +38,7 @@ public class App extends Application {
             setGroup( new Group() );            
         }
         if( me == null){
-            String id = Util.getUuid(this);
+            String id = Util.getUUID(this);
             setMe( new User(id) );
         }
     }

@@ -1,10 +1,23 @@
 package com.gmail.czzsunset.xinterphone.model;
 
-public class SimpleUser {
-	
-	public int id = 0;
-	public int groupId = 0;
-	public String frequence = "400.0000";
-	
 
+
+public class SimpleUser{
+	public int iUUID ;
+	public int userCode;
+	public double latitude;
+	public double longitude;
+	public double altitude;
+	public long timestamp;
+	public boolean isMySelf;
+	
+	public SimpleUser Creator(){
+		return new SimpleUser();
+	}
+	
+	public SimpleUser lat(double lat){
+		this.latitude =lat;
+		return this;
+	}
+	
 }

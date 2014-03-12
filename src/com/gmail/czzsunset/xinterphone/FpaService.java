@@ -35,7 +35,9 @@ import com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseHelper;
 import com.gmail.czzsunset.xinterphone.lib.USBControl;
 import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
 import com.gmail.czzsunset.xinterphone.locations.base.LocationUpdateRequester;
+import com.gmail.czzsunset.xinterphone.model.SimpleUser;
 import com.gmail.czzsunset.xinterphone.ui.MainActivity;
+import com.gmail.czzsunset.xinterphone.ui.PeerManager;
 import com.gmail.czzsunset.xinterphone.ui.SimpleMainActivity;
 import com.gmail.czzsunset.xinterphone.ui.SimpleMapFragment;
 import com.gmail.czzsunset.xinterphone.ui.SimplePrefActivity;
@@ -60,13 +62,14 @@ public class FpaService extends Service implements LocationListener  {
 	public static final int MSG_REGISTER_CLIENT   = 0xe000001;
 	public static final int MSG_DRAW_MARKER 	  = 0xe000002;
 	public static final int MSG_UPDATE_MARKER	  = 0xe000003;
-	public static final int MSG_EXIT_APP   = 0xe000004;
+	public static final int MSG_DRAW_MARKER_LIST  = 0xe000004;
+	
+	public static final int MSG_EXIT_APP          = 0xeffffff;
 	
 	
 	
 	
 	private final Messenger mMessenger = new Messenger(new IncomingMessageHandler()); // Target we publish for clients to send messages to IncomingHandler
-	
 	
 	
 	private static boolean isRunning = false;
@@ -76,6 +79,8 @@ public class FpaService extends Service implements LocationListener  {
 	
 	private Protocol protocol;    
     public static FpaService self = null;
+    
+    private static PeerManager mPeerManager = new PeerManager() ;
     
     
     private LocationUpdateRequester mLocationRequester;
@@ -105,11 +110,10 @@ public class FpaService extends Service implements LocationListener  {
     			int userCode = Integer.valueOf( mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") );
     			// int userCode =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
     			
-    			Bundle bundle = new Bundle();
-    			bundle.putInt("userCode", userCode);
-    			bundle.putDouble("lat", lat);
-    			bundle.putDouble("lng", lng);
-    			bundle.putDouble("timestamp", location.getTime());
+    			mPeerManager.updateMySelf(0x001,userCode,lat,lng,0.0,location.getTime());
+    			
+    			Bundle bundle = mPeerManager.getBundle(0x001);
+    			    			
     			self.sendMessageToUI(MSG_UPDATE_MARKER, bundle);    			
     			
     		}
@@ -339,8 +343,13 @@ public class FpaService extends Service implements LocationListener  {
 			case MSG_REGISTER_CLIENT:
 				mClients.add(msg.replyTo);
 				
+				
 				cancelLocationUpdate();
-				requestLocationUpdate(2000);
+				requestLocationUpdate(5000);
+				
+				
+				self.sendMessageToUI(MSG_DRAW_MARKER_LIST, mPeerManager.getAllPeerBundle() ); 
+				
 				
 				break;
 				
@@ -378,10 +387,22 @@ public class FpaService extends Service implements LocationListener  {
 		public void onReceive(byte[] msg) {	
 			Log.d(TAG,"onReceive:"+msg.toString());
 			protocol.processInput(msg);		
-			if(protocol.what != -1){
-				self.sendMessageToUI(protocol.getMsgType(), protocol.getBundle());
+			
+			SimpleUser peer = protocol.getPeer();
+			if( peer != null){
+				mPeerManager.updatePeer( peer );
+				
+				self.sendMessageToUI(MSG_UPDATE_MARKER, mPeerManager.getBundle(peer.iUUID));
+				
 				protocol.clear();
+				
 			}
+			
+			
+//			if(protocol.what != -1){
+//				self.sendMessageToUI(protocol.getMsgType(), protocol.getBundle());
+//				protocol.clear();
+//			}
 			
 		}
 

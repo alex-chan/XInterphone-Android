@@ -99,7 +99,6 @@ public class FpaService extends Service implements LocationListener  {
     		Bundle bd = intent.getExtras();
     		Location location = (Location)bd.get(android.location.LocationManager.KEY_LOCATION_CHANGED);
     		
-    		Log.d(TAG,"onReceive");
     		
     		if(location != null ){
     			
@@ -107,13 +106,16 @@ public class FpaService extends Service implements LocationListener  {
     			double lng = location.getLongitude();
     			Log.d(TAG, "LocUpdateFromHost received a new location fix, lat:"+lat+" lng:"+lng );
     			
-    			int userCode = Integer.valueOf( mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") );
+    			String sUserCode = mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") ;
+    			
+    			int userCode = Integer.valueOf( sUserCode );
     			// int userCode =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+    			int iUUID = Util.getIUUID(self, 0);
     			
-    			mPeerManager.updateMySelf(0x001,userCode,lat,lng,0.0,location.getTime());
+    			mPeerManager.updateMySelf(iUUID,userCode,lat,lng,0.0,location.getTime());
     			
-    			Bundle bundle = mPeerManager.getBundle(0x001);
-    			    			
+    			Bundle bundle = mPeerManager.getBundle(iUUID);
+    			
     			self.sendMessageToUI(MSG_UPDATE_MARKER, bundle);    			
     			
     		}
@@ -149,7 +151,7 @@ public class FpaService extends Service implements LocationListener  {
 		initMembers();
 		
 		setupUSB();		
-		testUSB();
+		testUSB_v1();
 		
 		requestLocationUpdate(1 * 60 * 1000);
 		
@@ -180,7 +182,7 @@ public class FpaService extends Service implements LocationListener  {
 	private void initMembers(){
 		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);	
 		mLocationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
-		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		
 		
 		protocol = new Protocol();
 		
@@ -202,30 +204,32 @@ public class FpaService extends Service implements LocationListener  {
 		console("Done\n");	
 	}
 	
-	private void testUSB(){
+	private void testUSB_v1(){
 		
 		Thread thd = new Thread(new Runnable(){
 			public void run() {
 				
 				Log.d(TAG, "receiving msg from peer...");
 				try {
-					Thread.sleep( 30 * 1000);
+					Thread.sleep( 10 * 1000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
-				byte []msg = new byte[27];
+				byte []msg = new byte[28];
 				
-				ByteBuffer bb = ByteBuffer.allocate(27);
+				ByteBuffer bb = ByteBuffer.allocate(28);
 				bb.put((byte) 0x05);
 				bb.put((byte) 0x00);
-				bb.put((byte) 0x11);
+				bb.put((byte) 0x0a); // userCode=10				
+				bb.put((byte) 0x20); // iUUID = 32
 				
-				bb.putLong(0x00252335);
-				bb.putFloat((float) 22.581);
-				bb.putFloat((float) 113.95);
-				bb.putFloat((float) 20);
+				bb.putLong( System.currentTimeMillis());
+				bb.putFloat((float) 22.581);  // latitude
+				bb.putFloat((float) 113.95);  // longitude
+				bb.putFloat((float) 110);  // altitude
+				bb.putFloat((float) 20);  // accuracy 
 				
 				msg = bb.array();				
 				
@@ -306,7 +310,9 @@ public class FpaService extends Service implements LocationListener  {
 	public  void sendMessageToUI(int what, Bundle bundle) {
 		Iterator<Messenger> messengerIterator = mClients.iterator();		
 		while(messengerIterator.hasNext()) {
+			
 			Messenger messenger = messengerIterator.next();
+			
 			try {
 				// Send data as an Integer				
 				// messenger.send(Message.obtain(null, MSG_SET_INT_VALUE, intvaluetosend, 0));
@@ -345,7 +351,7 @@ public class FpaService extends Service implements LocationListener  {
 				
 				
 				cancelLocationUpdate();
-				requestLocationUpdate(5000);
+				requestLocationUpdate(12000);
 				
 				
 				self.sendMessageToUI(MSG_DRAW_MARKER_LIST, mPeerManager.getAllPeerBundle() ); 

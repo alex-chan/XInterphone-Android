@@ -67,6 +67,7 @@ public class PeerManager {
 			if( peer.iUUID == iUUID){
 				
 				peer = buildPeer(iUUID,userCode,latitude,longitude,altitude,timestamp,isMyself);
+				mPeers.set(i, peer);
 				bFound = true;
 				break;
 			}
@@ -108,6 +109,7 @@ public class PeerManager {
 			
 			SimpleUser peer1 = mPeers.get(peerIndex);
 			
+			bundle.putInt("iUUID", iUUID);
 			bundle.putInt("userCode", peer1.userCode);
 			bundle.putDouble("lat", peer1.latitude);
 			bundle.putDouble("lng", peer1.longitude);

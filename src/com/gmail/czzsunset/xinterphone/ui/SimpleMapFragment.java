@@ -239,10 +239,16 @@ public  class SimpleMapFragment extends SupportMapFragment {
 	}  	
 	
 	public void animateMarker(int iUUID, double dstLat, double dstLng, long durationMs, boolean mapWillFollow){
+		Log.d(TAG,"animateMarker");
+		
+		Log.d(TAG,"iUUID:" + iUUID + "mMarkers" + mMarkers);
+		
 		final Marker marker =  mMarkers.get(iUUID);
 		if(marker != null){
 			Log.d(TAG,"bMapWillFollow:" + bMapWillFollow);
 			animateMarker(marker, dstLat, dstLng, durationMs, false, mapWillFollow);
+		}else{
+			Log.d(TAG,"marker is null");
 		}
 		
 	}

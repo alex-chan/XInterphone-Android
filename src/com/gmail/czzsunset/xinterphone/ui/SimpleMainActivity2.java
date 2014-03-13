@@ -215,6 +215,9 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 			Log.d(TAG, "add self marker, and animate to it"); 
 			int userCode = Integer.valueOf( mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") );
 			int iUUID = Util.getIUUID(this, 0);
+			
+			
+			Log.d(TAG, "mLastLocation  not null. iUUID:"+ iUUID + " userCode:" + userCode);
 			addMarker(iUUID, userCode, mLastLocation.getLatitude(),mLastLocation.getLongitude(),
 					null,null, true);	
 			mMapfrag.animateToLocation(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 500);
@@ -350,16 +353,18 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 	public void addMarker(int iUUID, int userCode, double lat, double lng, String name,
 			String snippet, boolean isSelf) {
 //		mMapfrag.addMarker(lat, lng, userCode, null, null, isSelf);
+		Log.d(TAG, "userCode:" + userCode);
 		mMapfrag.addMarker(iUUID, userCode, lat, lng, null, null,  isSelf ? MarkerColor.RED : MarkerColor.BLUE);
 	}
 	
 	/*
 	 * Move a marker to a new latlng
 	 */
-	public void moveMarker(int userCode, double newLat, double newLng, boolean mapWillFollow){
+	public void moveMarker(int iUUID, double newLat, double newLng, boolean mapWillFollow){
+		Log.d(TAG,"moveMarker");
 		if( mMapfrag != null ){
 			
-			mMapfrag.animateMarker(userCode,newLat,newLng,500,mapWillFollow);
+			mMapfrag.animateMarker(iUUID,newLat,newLng,500,mapWillFollow);
 		}
 	}
 	
@@ -471,13 +476,17 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 			int userCode,myCode,iUUID;
 			double newLat,newLng, timestamp;
 			
+			int myIUUID = Util.getIUUID(self, 0);
+			
+			
+			
 			switch (msg.what) {
 			
 			case FpaService.MSG_DRAW_MARKER_LIST:
 				bundle = (Bundle) msg.getData();
 				int size = bundle.getInt("markerSize");
 				
-				int myIUUID = Util.getIUUID(self, 0);
+				Log.d(TAG,"MSG_DRAW_MARKER_LIST");
 				
 				for(int i=0;i<size;i++){
 					Bundle bdl = bundle.getBundle(String.valueOf(i));
@@ -488,12 +497,13 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 					 timestamp = bdl.getDouble("timestamp");
 					
 					 
+					 Log.d(TAG, "iUUID:" + iUUID + " userCofde:" + userCode);
 					 addMarker(iUUID, userCode,newLat,newLng, null, null, myIUUID == iUUID);					
 					
 				}
 				
 				
-				
+				break;
 				
 			case FpaService.MSG_DRAW_MARKER:
 				
@@ -507,14 +517,16 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 				 timestamp = bundle.getDouble("timestamp");
 				
 				 myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));				
-				
-				 addMarker(iUUID, userCode,newLat,newLng, null, null, myCode == userCode);
+				 Log.d(TAG,"MSG_DRAW_MARKER");
+				 
+				 addMarker(iUUID, userCode,newLat,newLng, null, null, myIUUID == iUUID);
 				
 				break;
 				
 			case FpaService.MSG_UPDATE_MARKER:
 				
 				// updateMarker() called here
+				Log.d(TAG,"MSG_UPDATE_MARKER");
 				
 				 bundle = (Bundle) msg.getData();
 				 iUUID = bundle.getInt("iUUID");
@@ -525,8 +537,8 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 				
 				 myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));
 				
-				
-				moveMarker(iUUID,newLat,newLng, myCode == userCode);
+				 
+				moveMarker(iUUID,newLat,newLng, iUUID == myIUUID);
 				
 				break;
 			

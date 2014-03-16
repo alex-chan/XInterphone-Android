@@ -19,7 +19,9 @@ package com.gmail.czzsunset.xinterphone.locations;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.location.Criteria;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Looper;
 
 import com.gmail.czzsunset.xinterphone.Constants;
 import com.gmail.czzsunset.xinterphone.locations.base.LocationUpdateRequester;
@@ -51,6 +53,25 @@ public class LegacyLocationUpdateRequester extends LocationUpdateRequester{
       locationManager.requestLocationUpdates(provider, minTime, minDistance, pendingIntent);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void requestLocationUpdates(long minTime, long minDistance, Criteria criteria, LocationListener listener, Looper looper) {
+    // Prior to Gingerbread we needed to find the best provider manually.
+    // Note that we aren't monitoring this provider to check if it becomes disabled - this is handled by the calling Activity.
+    String provider = locationManager.getBestProvider(criteria, true);
+    if (provider != null)
+      locationManager.requestLocationUpdates(provider, minTime, minDistance, listener, looper);
+  }  
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void removeUpdate(LocationListener listener){
+	  locationManager.removeUpdates(listener);
+  }
+  
   /**
    * {@inheritDoc}
    */

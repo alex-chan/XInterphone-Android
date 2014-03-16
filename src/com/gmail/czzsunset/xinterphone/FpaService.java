@@ -39,6 +39,7 @@ import com.gmail.czzsunset.xinterphone.model.SimpleUser;
 import com.gmail.czzsunset.xinterphone.ui.MainActivity;
 import com.gmail.czzsunset.xinterphone.ui.PeerManager;
 import com.gmail.czzsunset.xinterphone.ui.SimpleMainActivity;
+import com.gmail.czzsunset.xinterphone.ui.SimpleMainActivity2;
 import com.gmail.czzsunset.xinterphone.ui.SimpleMapFragment;
 import com.gmail.czzsunset.xinterphone.ui.SimplePrefActivity;
 import com.google.android.gms.maps.model.LatLng;
@@ -87,6 +88,65 @@ public class FpaService extends Service implements LocationListener  {
     static SharedPreferences mSharedPref ;
     PendingIntent reqLocUpdatePendingIntent;
     
+    private long lastBroadcastMs = 0;
+    
+    public static LocationListener locListener = new LocationListener(){
+
+		@Override
+		public void onLocationChanged(Location location) {
+			// TODO Auto-generated method stub
+			
+			Log.d(TAG,"onLocationChanged");
+			if(location != null ){
+    			
+    			double lat = location.getLatitude();
+    			double lng = location.getLongitude();
+    			Log.d(TAG, "locListener received a new location fix, lat:"+lat+" lng:"+lng );
+    			
+    			String sUserCode = mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") ;
+    			
+    			int interMin = Integer.valueOf(  mSharedPref.getString(SimplePrefActivity.KEY_PREF_UPDATE_INTERVAL, "5") );
+    			
+    			
+    			int userCode = Integer.valueOf( sUserCode );
+    			// int userCode =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
+    			int iUUID = Util.getIUUID(self, 0);
+    			
+    			mPeerManager.updateMySelf(iUUID,userCode,lat,lng,0.0,location.getTime());
+    			
+    			Bundle bundle = mPeerManager.getBundle(iUUID);
+    			
+    			self.sendMessageToUI(MSG_UPDATE_MARKER, bundle);    	
+    			
+    			long curMs =  System.currentTimeMillis();
+    			if( (curMs - self.lastBroadcastMs) > interMin * 60 * 1000 ){
+    				self.lastBroadcastMs = curMs;
+    			}
+    			
+    			
+    		}			
+			
+		}
+
+		@Override
+		public void onProviderDisabled(String provider) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onProviderEnabled(String provider) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+			// TODO Auto-generated method stub
+			
+		}
+    	
+    };
     
     
     public static class LocUpdateFromHost extends BroadcastReceiver{
@@ -99,6 +159,7 @@ public class FpaService extends Service implements LocationListener  {
     		Bundle bd = intent.getExtras();
     		Location location = (Location)bd.get(android.location.LocationManager.KEY_LOCATION_CHANGED);
     		
+    		Log.d(TAG,"reveiving a location fix...");
     		
     		if(location != null ){
     			
@@ -108,6 +169,9 @@ public class FpaService extends Service implements LocationListener  {
     			
     			String sUserCode = mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") ;
     			
+    			int interMin = Integer.valueOf(  mSharedPref.getString(SimplePrefActivity.KEY_PREF_UPDATE_INTERVAL, "5") );
+    			
+    			
     			int userCode = Integer.valueOf( sUserCode );
     			// int userCode =  mSharedPref.getInt(SimplePrefActivity.KEY_PREF_MY_CODE, 0);
     			int iUUID = Util.getIUUID(self, 0);
@@ -116,7 +180,13 @@ public class FpaService extends Service implements LocationListener  {
     			
     			Bundle bundle = mPeerManager.getBundle(iUUID);
     			
-    			self.sendMessageToUI(MSG_UPDATE_MARKER, bundle);    			
+    			self.sendMessageToUI(MSG_UPDATE_MARKER, bundle);    	
+    			
+    			long curMs =  System.currentTimeMillis();
+    			if( (curMs - self.lastBroadcastMs) > interMin * 60 * 1000 ){
+    				self.lastBroadcastMs = curMs;
+    			}
+    			
     			
     		}
 
@@ -153,7 +223,7 @@ public class FpaService extends Service implements LocationListener  {
 		setupUSB();		
 		testUSB_v1();
 		
-		requestLocationUpdate(1 * 60 * 1000);
+		requestLocationUpdate2(4 * 1000);
 		
 		self = this;
 		
@@ -171,7 +241,7 @@ public class FpaService extends Service implements LocationListener  {
 		closeUSB();		
 		
 		
-		cancelLocationUpdate();
+		cancelLocationUpdate2();
 
 		System.exit(0);
 		
@@ -182,11 +252,18 @@ public class FpaService extends Service implements LocationListener  {
 	private void initMembers(){
 		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);	
 		mLocationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
-		
+		mLocationRequester = PlatformSpecificImplementationFactory.getLocationUpdateRequester(mLocationManager);		
 		
 		protocol = new Protocol();
 		
 	}
+	
+	
+	
+	
+	
+	
+	
 	
 	private void setupUSB(){
 
@@ -204,36 +281,47 @@ public class FpaService extends Service implements LocationListener  {
 		console("Done\n");	
 	}
 	
+	
+	private byte[] unittest(int sleepSec, int iUUID, int userCode, double lat, double lng){
+		try {
+			Thread.sleep( sleepSec * 1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		byte []msg = new byte[28];
+		
+		ByteBuffer bb = ByteBuffer.allocate(28);
+		bb.put((byte) 0x05);
+		bb.put((byte) 0x00);
+		bb.put((byte) userCode); // 				
+		bb.put((byte) iUUID); // iUUID = 32
+		
+		bb.putLong( System.currentTimeMillis());
+		bb.putFloat((float) lat);  // latitude
+		bb.putFloat((float) lng);  // longitude
+		bb.putFloat((float) 110);  // altitude
+		bb.putFloat((float) 20);  // accuracy 
+		
+		msg = bb.array();	
+		return msg;
+	}
+	
 	private void testUSB_v1(){
 		
 		Thread thd = new Thread(new Runnable(){
 			public void run() {
 				
 				Log.d(TAG, "receiving msg from peer...");
-				try {
-					Thread.sleep( 10 * 1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			
 				
-				byte []msg = new byte[28];
+				usbConnection.onReceive(unittest(5,0x30,1,22.586,113.955));
+				usbConnection.onReceive(unittest(5,0x31,2,22.584,113.952));
+				usbConnection.onReceive(unittest(5,0x30,1,22.583,113.951));
 				
-				ByteBuffer bb = ByteBuffer.allocate(28);
-				bb.put((byte) 0x05);
-				bb.put((byte) 0x00);
-				bb.put((byte) 0x0a); // userCode=10				
-				bb.put((byte) 0x20); // iUUID = 32
 				
-				bb.putLong( System.currentTimeMillis());
-				bb.putFloat((float) 22.581);  // latitude
-				bb.putFloat((float) 113.95);  // longitude
-				bb.putFloat((float) 110);  // altitude
-				bb.putFloat((float) 20);  // accuracy 
 				
-				msg = bb.array();				
-				
-				usbConnection.onReceive(msg);
 				
 			}				
 		});
@@ -244,6 +332,19 @@ public class FpaService extends Service implements LocationListener  {
 		
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	private void requestLocationUpdate(){
 		int interInMin = Integer.valueOf( mSharedPref.getString(SimplePrefActivity.KEY_PREF_UPDATE_INTERVAL, "5") );		
 		requestLocationUpdate(interInMin * 60 * 1000);
@@ -253,7 +354,7 @@ public class FpaService extends Service implements LocationListener  {
     	
     	Log.d(TAG, "requestLocationUpdate, intervalMs:" + intervalMs);
     	    	    	
-    	mLocationRequester = PlatformSpecificImplementationFactory.getLocationUpdateRequester(mLocationManager);
+    	
     	    	
     	Criteria criteria = new Criteria();
     	criteria.setAccuracy(Criteria.ACCURACY_FINE);
@@ -276,6 +377,39 @@ public class FpaService extends Service implements LocationListener  {
     }
 	
 
+    
+    
+    
+    
+    private void requestLocationUpdate2(){ 	
+		int interInMin = Integer.valueOf( mSharedPref.getString(SimplePrefActivity.KEY_PREF_UPDATE_INTERVAL, "5") );		
+		requestLocationUpdate2(interInMin * 60 * 1000);    	
+    }
+    
+    private void requestLocationUpdate2(long intervalMs){
+    	Log.d(TAG, "requestLocationUpdate, intervalMs:" + intervalMs);
+    	
+    	mLocationRequester = PlatformSpecificImplementationFactory.getLocationUpdateRequester(mLocationManager);
+    	    	
+    	Criteria criteria = new Criteria();
+    	criteria.setAccuracy(Criteria.ACCURACY_FINE);    	
+    	    	  	
+    	// mLocationRequester.requestLocationUpdates(intervalMs, 0, criteria, reqLocUpdatePendingIntent);
+    	mLocationRequester.requestLocationUpdates(intervalMs, 0, criteria, locListener, getMainLooper());
+    	
+    	
+    }
+    
+    private void cancelLocationUpdate2(){
+    	mLocationRequester.removeUpdate(locListener);
+    }
+    
+    
+    
+    
+    
+    
+    
 	
 	/**
 	 * Show a notification on StatusBar
@@ -294,7 +428,7 @@ public class FpaService extends Service implements LocationListener  {
 		// The PendingIntent to launch our activity if the user selects this
 		// notification
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				new Intent(this, SimpleMainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+				new Intent(this, SimpleMainActivity2.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		mBuilder.setContentIntent(contentIntent);
 
@@ -350,8 +484,8 @@ public class FpaService extends Service implements LocationListener  {
 				mClients.add(msg.replyTo);
 				
 				
-				cancelLocationUpdate();
-				requestLocationUpdate(12000);
+//				cancelLocationUpdate2();
+//				requestLocationUpdate2(4000);
 				
 				
 				self.sendMessageToUI(MSG_DRAW_MARKER_LIST, mPeerManager.getAllPeerBundle() ); 
@@ -361,8 +495,8 @@ public class FpaService extends Service implements LocationListener  {
 				
 			case MSG_UNREGISTER_CLIENT:
 				
-				cancelLocationUpdate();
-				requestLocationUpdate();
+//				cancelLocationUpdate2();
+//				requestLocationUpdate2();
 				
 				mClients.remove(msg.replyTo);
 				
@@ -396,9 +530,14 @@ public class FpaService extends Service implements LocationListener  {
 			
 			SimpleUser peer = protocol.getPeer();
 			if( peer != null){
-				mPeerManager.updatePeer( peer );
 				
-				self.sendMessageToUI(MSG_UPDATE_MARKER, mPeerManager.getBundle(peer.iUUID));
+				boolean updatePeer =  mPeerManager.updatePeer( peer ) ;
+				
+				if( updatePeer){				
+					self.sendMessageToUI(MSG_UPDATE_MARKER, mPeerManager.getBundle(peer.iUUID));					
+				}else{
+					self.sendMessageToUI(MSG_DRAW_MARKER, mPeerManager.getBundle(peer.iUUID));
+				}
 				
 				protocol.clear();
 				
@@ -428,13 +567,28 @@ public class FpaService extends Service implements LocationListener  {
 			//finish();
 		}
 
-		byte[] msg = new byte[3];
+		byte[] msg = new byte[3];			
+		
+		public void broadcastMyLocation(int version, SimpleUser peer){
+			byte[] msg = protocol.processOutput(0, Protocol.BROADCAST_LOCATION, peer);
+			usbConnection.send(msg);
+			
+		}
 
 		void setSpeed(int speed){
 
 			usbConnection.send(msg);
 		}
 	}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 
 	//Helper

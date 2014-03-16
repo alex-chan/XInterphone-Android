@@ -18,7 +18,9 @@ package com.gmail.czzsunset.xinterphone.locations;
 
 import android.app.PendingIntent;
 import android.location.Criteria;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Looper;
 
 /**
  * Provides support for initiating active and passive location updates 
@@ -32,6 +34,8 @@ public class GingerbreadLocationUpdateRequester extends FroyoLocationUpdateReque
     super(locationManager);
   }
 
+  
+  
   /**
    * {@inheritDoc}
    */
@@ -41,4 +45,7 @@ public class GingerbreadLocationUpdateRequester extends FroyoLocationUpdateReque
     // Note that we aren't monitoring this provider to check if it becomes disabled - this is handled by the calling Activity.
     locationManager.requestLocationUpdates(minTime, minDistance, criteria, pendingIntent);
   }
+  
+
+  
 }

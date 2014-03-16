@@ -37,14 +37,14 @@ public class PeerManager {
 	}
 	
 	
-	public void updatePeer(SimpleUser peer){
+	public boolean updatePeer(SimpleUser peer){
 		
 		boolean bFound = false;
 		
 		for(int i=0; i<mPeers.size(); i++){
 			SimpleUser peer1 = mPeers.get(i);
 			if( peer1.iUUID == peer.iUUID){				
-				mPeers.set(i, peer1);				
+				mPeers.set(i, peer);				
 				bFound = true;
 				break;
 			}
@@ -53,10 +53,10 @@ public class PeerManager {
 		if(!bFound){
 			mPeers.add( peer );
 		}		
-		
+		return bFound;
 	}
 	
-	public void updatePeer(final int iUUID, final int userCode, double latitude,
+	public boolean updatePeer(final int iUUID, final int userCode, double latitude,
 			double longitude, double altitude, long timestamp, boolean isMyself){
 		
 		boolean bFound = false;
@@ -76,6 +76,8 @@ public class PeerManager {
 		if(!bFound){
 			mPeers.add( buildPeer(iUUID,userCode,latitude,longitude,altitude,timestamp,isMyself) );
 		}
+		
+		return bFound;
 	
 	}
 	
@@ -127,6 +129,18 @@ public class PeerManager {
 		
 	}
 	
+	
+	public SimpleUser getPeer(final int iUUID){
+		
+		for(int i=0; i<mPeers.size(); i++){
+			SimpleUser peer = mPeers.get(i);
+			if( peer.iUUID == iUUID){
+				return peer;
+			}
+		}	
+		return null;
+						
+	}
 	
 	public Bundle getAllPeerBundle(){
 		

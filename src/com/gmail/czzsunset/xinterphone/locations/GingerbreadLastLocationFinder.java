@@ -29,6 +29,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.util.Log;
 
+import com.gmail.czzsunset.xinterphone.Constants;
 import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
 
 /**
@@ -45,7 +46,7 @@ import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
 public class GingerbreadLastLocationFinder implements ILastLocationFinder {
   
   protected static String TAG = "LastLocationFinder";
-  protected static String SINGLE_LOCATION_UPDATE_ACTION = "com.mollocer.fpa.SINGLE_LOCATION_UPDATE_ACTION";
+  protected static String SINGLE_LOCATION_UPDATE_ACTION = Constants.PACKAGE_PREFIX + "SINGLE_LOCATION_UPDATE_ACTION";
   
   protected PendingIntent singleUpatePI;
   protected LocationListener locationListener;
@@ -70,7 +71,7 @@ public class GingerbreadLastLocationFinder implements ILastLocationFinder {
     // Construct the Pending Intent that will be broadcast by the oneshot
     // location update.
     Intent updateIntent = new Intent(SINGLE_LOCATION_UPDATE_ACTION);  
-    singleUpatePI = PendingIntent.getBroadcast(context, 0, updateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+    singleUpatePI = PendingIntent.getBroadcast(context, 11, updateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
   }
   
   /**
@@ -123,6 +124,7 @@ public class GingerbreadLastLocationFinder implements ILastLocationFinder {
     return bestResult;
   }
   
+  
   /**
    * This {@link BroadcastReceiver} listens for a single location
    * update before unregistering itself.
@@ -138,10 +140,11 @@ public class GingerbreadLastLocationFinder implements ILastLocationFinder {
     	String key = LocationManager.KEY_LOCATION_CHANGED;
     	Location location = (Location)intent.getExtras().get(key);
       
-    	if (locationListener != null && location != null)
+    	if (locationListener != null && location != null){
     		locationListener.onLocationChanged(location);
-      
+    	}
     	locationManager.removeUpdates(singleUpatePI);
+    	
     }
   };
 
@@ -149,7 +152,8 @@ public class GingerbreadLastLocationFinder implements ILastLocationFinder {
    * {@inheritDoc}
    */
   public void setChangedLocationListener(LocationListener l) {
-    locationListener = l;
+	  Log.d(TAG,"setChangedLocationListener");
+	  locationListener = l;
   }
 
   /**

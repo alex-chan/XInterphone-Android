@@ -1,5 +1,7 @@
 package com.gmail.czzsunset.xinterphone.ui;
 
+
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,41 +26,52 @@ import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
+import com.amap.api.maps.AMap;
+import com.amap.api.maps.AMap.OnCameraChangeListener;
+import com.amap.api.maps.AMapOptions;
+import com.amap.api.maps.CameraUpdate;
+import com.amap.api.maps.CameraUpdateFactory;
+import com.amap.api.maps.MapFragment;
+import com.amap.api.maps.Projection;
+import com.amap.api.maps.SupportMapFragment;
+import com.amap.api.maps.UiSettings;
+import com.amap.api.maps.model.BitmapDescriptor;
+import com.amap.api.maps.model.BitmapDescriptorFactory;
+import com.amap.api.maps.model.CameraPosition;
+import com.amap.api.maps.model.LatLng;
+import com.amap.api.maps.model.Marker;
+import com.amap.api.maps.model.MarkerOptions;
 import com.gmail.czzsunset.xinterphone.R;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
-import com.google.android.gms.maps.GoogleMapOptions;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.Projection;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-public  class SimpleMapFragment extends SupportMapFragment {
+
+
+public class AMapSimpleMapFragment extends SupportMapFragment {
 
 	
-	public static final String TAG = "SimpleMapFragment";
+	public static final String TAG = "AMapSimpleMapFragment";
 	
 	
-	public static SimpleMapFragment mSimpleFrag;
 	
 	private static MapFragment mMapFrag;
 	
 	
 	private boolean bMapWillFollow = true;
 	
-    private GoogleMap mMap;	
-	
 //	private Map<Integer, Marker> mMarkerDict = new HashMap<Integer, Marker>(); 
 	SparseArray<Marker> mMarkers = new SparseArray<Marker>();
+	
+	public static SupportMapFragment instance;
+	public static SupportMapFragment getInstance() {
+	    if (instance == null) {
+	        instance = newInstance();
+	    }
+	    // NullPointerException in getMap() ???
+	    // instance.getMap().addMarker(new MarkerOptions().position(new LatLng(41.1, 39)));
+	    return instance;
+	}
+
+	
+    private AMap mMap;
 	
 	public enum MarkerColor{
 		RED,
@@ -66,42 +79,7 @@ public  class SimpleMapFragment extends SupportMapFragment {
 	}
 
 	
-	public static SimpleMapFragment newInstance(){
-		// If there is no lastKnown location, the default location is ShenZhen 
-		LatLng latlng = new LatLng(22.5825,113.9506);
-		return newInstance(latlng);		
-		
-	}
-	
-	public static SimpleMapFragment newInstance(LatLng latlng){
-		
-		Log.i(TAG,"newInstance at "+latlng);
-    	GoogleMapOptions opts = new GoogleMapOptions();
-    	
-    	CameraPosition camera = new CameraPosition.Builder()
-    								.target(latlng)
-    								.zoom(20)    							
-    								.build();
-    	
-    	
-    	opts.camera(camera)
-			.compassEnabled(true)
-			.rotateGesturesEnabled(true)						
-			.tiltGesturesEnabled(true)   ;
-		
-		Log.d(TAG, "opts:" + opts);
-//		SupportMapFragment fr = SupportMapFragment.newInstance(opts);
-//		Log.d(TAG, "supportMapFragment:" + fr);
-		
-		
-		return new SimpleMapFragment();
-		
-//		if( mSimpleFrag == null){			
-//			mSimpleFrag =   new SimpleMapFragment();			
-//		}
-//		
-//		return mSimpleFrag;
-	}
+
 	
 	
 	@Override
@@ -279,7 +257,8 @@ public  class SimpleMapFragment extends SupportMapFragment {
                 marker.setPosition(new LatLng(lat, lng));
                 
                 if( mapWillFollow){
-                	mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)) );
+//                	float curZoom = mMap.getCameraPosition().zoom;
+//                	mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), curZoom) );
                 }
 
                 if (t < 1.0) {
@@ -307,11 +286,11 @@ public  class SimpleMapFragment extends SupportMapFragment {
 			
 	    	if( latlng != null){	    		
 	    		Log.d(TAG, "Animate to location:"+latlng);
-
+	    		float curZoom = mMap.getCameraPosition().zoom;
 	    		if( durationMs == 0){
-	    			mMap.animateCamera(CameraUpdateFactory.newLatLng(latlng) );
+	    			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, curZoom) );
 	    		}else{	    			
-	    			mMap.animateCamera(CameraUpdateFactory.newLatLng(latlng), durationMs, null );
+	    			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, curZoom), durationMs, null );
 	    		}
 	    		
 	    		
@@ -320,7 +299,6 @@ public  class SimpleMapFragment extends SupportMapFragment {
 	}
 	
 	
-
 
     
     public void setUpMapIfNeeded() {
@@ -332,7 +310,7 @@ public  class SimpleMapFragment extends SupportMapFragment {
         	Log.d(TAG,"google map is null");
         	
         	FragmentManager manager = getActivity().getSupportFragmentManager();
-        	SimpleMapFragment mapfrag = (SimpleMapFragment) manager.findFragmentByTag("tabmap");
+        	AMapSimpleMapFragment mapfrag = (AMapSimpleMapFragment) manager.findFragmentByTag("tabmap");
         	        	
         	
         	if( mapfrag != null){
@@ -346,7 +324,7 @@ public  class SimpleMapFragment extends SupportMapFragment {
                 		
                 		Log.i(TAG,"Got GooogleMap");
                 		
-                		
+                		mMap.setMyLocationEnabled(true);
                 		
                 		float maxZoom = mMap.getMaxZoomLevel();
                 		
@@ -354,19 +332,35 @@ public  class SimpleMapFragment extends SupportMapFragment {
 //                		CameraUpdate cam = CameraUpdateFactory.zoomTo(maxZoom - 4);
                 		
                 		CameraUpdate cam = CameraUpdateFactory.newLatLngZoom(new LatLng(22.5825,113.9506), maxZoom-4);
+                		
                 		mMap.moveCamera(cam);
+                		
                 		
 //                		mMap.setMapType(mMap.MAP_TYPE_SATELLITE);
                 		
                 		UiSettings mUiSetting = mMap.getUiSettings();	
                     	mUiSetting.setMyLocationButtonEnabled(true);
-                    	
                     	mMap.setMyLocationEnabled(true);
-                    	
                     	mUiSetting.setCompassEnabled(true);                    	
                     	
                     	mUiSetting.setAllGesturesEnabled(true);       
                     	
+                    	
+                    	mMap.setOnCameraChangeListener(new OnCameraChangeListener(){
+
+							@Override
+							public void onCameraChange(CameraPosition arg0) {
+								// TODO Auto-generated method stub
+								
+							}
+
+							@Override
+							public void onCameraChangeFinish(CameraPosition arg0) {
+								// TODO Auto-generated method stub
+								bMapWillFollow = false;
+							}
+                    		
+                    	});
                     	
 //                    	mMap.setOnMyLocationButtonClickListener(new OnMyLocationButtonClickListener(){
 //

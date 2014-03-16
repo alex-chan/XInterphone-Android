@@ -60,7 +60,7 @@ public class Util {
     	switch(version){
     	case 0:
     		// version 00: 8bit iUUID
-    		return toIUUID(uuid);
+    		return toIUUID(uuid) & 0x00ff;
     		
     	}
     	return -1;

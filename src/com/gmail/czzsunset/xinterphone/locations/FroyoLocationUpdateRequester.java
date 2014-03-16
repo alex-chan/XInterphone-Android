@@ -17,7 +17,11 @@
 package com.gmail.czzsunset.xinterphone.locations;
 
 import android.app.PendingIntent;
+import android.location.Criteria;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Looper;
+import android.util.Log;
 
 import com.gmail.czzsunset.xinterphone.Constants;
 import com.gmail.czzsunset.xinterphone.locations.base.LocationUpdateRequester;
@@ -29,6 +33,8 @@ import com.gmail.czzsunset.xinterphone.locations.base.LocationUpdateRequester;
  * Uses broadcast Intents to notify the app of location changes.
  */
 public class FroyoLocationUpdateRequester extends LocationUpdateRequester{
+	
+	public final static String TAG = "FroyoLocationUpdateRequester" ;
 
   public FroyoLocationUpdateRequester(LocationManager locationManager) {
     super(locationManager);
@@ -43,4 +49,25 @@ public class FroyoLocationUpdateRequester extends LocationUpdateRequester{
     // receives location updates.
     locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, Constants.MAX_TIME, Constants.MAX_DISTANCE, pendingIntent);    
   }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void requestLocationUpdates(long minTime, long minDistance, Criteria criteria, LocationListener listener, Looper looper) {
+	  // Gingerbread supports a location update request that accepts criteria directly.
+	  // Note that we aren't monitoring this provider to check if it becomes disabled - this is handled by the calling Activity.	  
+	  //	  locationManager.requestLocationUpdates(minTime, minDistance, criteria, l);
+	  
+//	  locationManager.requestLocationUpdates(0, 0, criteria, listener, looper);
+	  
+      String provider = locationManager.getBestProvider(criteria, true);
+      Log.d(TAG,"criteria"+criteria + "  Provider:"+provider);
+      
+      if (provider != null){
+//    	  locationManager.requestLocationUpdates(minTime, minDistance, criteria, listener, looper);
+    	  locationManager.requestLocationUpdates(provider, minTime, minDistance, listener, looper);
+      }
+  }    
+  
 }

@@ -101,6 +101,7 @@ public class Protocol {
 				
 				peer  = new SimpleUser();
 				peer.iUUID = iUUID;
+				peer.userCode = userId;
 				peer.latitude = latitude;
 				peer.longitude = longitude;
 				peer.altitude = altitude;
@@ -150,26 +151,47 @@ public class Protocol {
 	}
 
 	
-	public SimpleUser getPeer(){
-		
+	public SimpleUser getPeer(){		
 		return peer;		
 	}
 	
-	public void processOutput(){
+	public byte[] processOutput(int version, int command, SimpleUser user){
+		byte[] msg  = null;
+		if(version == 0){
 		
+			switch(command){
+			
+			case BROADCAST_LOCATION:
+				msg = new byte[28];
+				ByteBuffer bb = ByteBuffer.allocate(28);
+				
+				bb.put((byte) 0x05); // version & command
+				bb.put((byte) 0); // groupID
+				bb.put((byte) peer.userCode); // 				
+				bb.put((byte) peer.iUUID); // iUUID = 32
+				
+				bb.putLong( peer.timestamp);
+				bb.putFloat((float) peer.latitude);  // latitude
+				bb.putFloat((float) peer.longitude);  // longitude
+				bb.putFloat((float) peer.altitude);  // altitude
+				bb.putFloat((float) 10);  // accuracy 
+				
+				msg = bb.array();	
+				
+				break;
+				
+			default:
+				break;					
+				
+			}
+
+		}
+		return msg;
 	}
 	
-	public int getMsgType(){
-		return what;
-	}
 	
-	public Bundle getBundle(){
-		return bundle;
-	}
 	
-	public void clear(){
-		what = -1;
-		bundle = null;
+	public void clear(){		
 		peer = null;
 	}
 

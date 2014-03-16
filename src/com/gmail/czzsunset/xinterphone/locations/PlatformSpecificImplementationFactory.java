@@ -39,8 +39,13 @@ public class PlatformSpecificImplementationFactory {
    * @return LastLocationFinder
    */
   public static ILastLocationFinder getLastLocationFinder(Context context) {
-    return Constants.SUPPORTS_GINGERBREAD ? new GingerbreadLastLocationFinder(context) : new LegacyLastLocationFinder(context);
+	  return Constants.SUPPORTS_GINGERBREAD ? new GingerbreadLastLocationFinder(context) : new LegacyLastLocationFinder(context);
+//	  return  new LegacyLastLocationFinder(context);
   }
+  
+  public static ILastLocationFinder getLastLocationFinder2(Context context) {	  
+	  return  new LegacyLastLocationFinder(context);
+  }  
   
   /**
    * Create a new StrictMode instance.

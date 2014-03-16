@@ -18,7 +18,9 @@ package com.gmail.czzsunset.xinterphone.locations.base;
 
 import android.app.PendingIntent;
 import android.location.Criteria;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Looper;
 
 /**
  * Abstract base class that can be extended to provide active and passive location updates 
@@ -40,9 +42,27 @@ public abstract class LocationUpdateRequester {
    * @param minTime Minimum time that should elapse between location update broadcasts.
    * @param minDistance Minimum distance that should have been moved between location update broadcasts.
    * @param criteria Criteria that define the Location Provider to use to detect the Location.
+   * @param listener 
+   */
+  public void requestLocationUpdates(long minTime, long minDistance, Criteria criteria, LocationListener listener, Looper looper) {}
+  
+  
+  /**
+   * Remove the LocationListener update
+   * @param listener
+   */
+  public void removeUpdate(LocationListener listener){}
+  
+  
+  /**
+   * Request active location updates using location listener. 
+   * These updates will be triggered by a direct request from the Location Manager.
+   * @param minTime Minimum time that should elapse between location update broadcasts.
+   * @param minDistance Minimum distance that should have been moved between location update broadcasts.
+   * @param criteria Criteria that define the Location Provider to use to detect the Location.
    * @param pendingIntent The Pending Intent to broadcast to notify the app of active location changes.
    */
-  public void requestLocationUpdates(long minTime, long minDistance, Criteria criteria, PendingIntent pendingIntent) {}
+  public void requestLocationUpdates(long minTime, long minDistance, Criteria criteria, PendingIntent pendingIntent) {}  
   
   /**
    * Request passive location updates.
@@ -54,4 +74,7 @@ public abstract class LocationUpdateRequester {
    * @param pendingIntent The Pending Intent to broadcast to notify the app of passive location changes.
    */
   public void requestPassiveLocationUpdates(long minTime, long minDistance, PendingIntent pendingIntent) {}
+  
+  
+  
 }

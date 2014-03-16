@@ -42,6 +42,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.amap.api.maps.model.LatLng;
 import com.gmail.czzsunset.xinterphone.FpaService;
 import com.gmail.czzsunset.xinterphone.Protocol;
 import com.gmail.czzsunset.xinterphone.R;
@@ -50,11 +51,12 @@ import com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseHelper;
 import com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseHelper.SimpleTraceTable;
 import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
 import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
-import com.gmail.czzsunset.xinterphone.ui.SimpleMapFragment.MarkerColor;
+import com.gmail.czzsunset.xinterphone.ui.AMapSimpleMapFragment.MarkerColor;
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.model.LatLng;
+
 
 public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceConnection{ 
 
@@ -68,7 +70,7 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
      
     private SharedPreferences mSharedPref ;    
     private LocationManager mLocationManager ;    
-    private SimpleMapFragment mMapfrag;	
+    private AMapSimpleMapFragment mMapfrag;	
     
     
     
@@ -159,23 +161,23 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 		
 		super.onResume();
 		
-		int ret = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-		if( ret !=  ConnectionResult.SUCCESS){
-			if (GooglePlayServicesUtil.isUserRecoverableError(ret)) {
-				Dialog dialog = GooglePlayServicesUtil.getErrorDialog(ret, this,66);
-				dialog.show();
-				
-		    } else {
-		      Toast.makeText(this, "This device is not supported.", 
-		          Toast.LENGTH_LONG).show();
-		      finish();
-		    }						
-			
-			return ;
-		}
+//		int ret = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+//		if( ret !=  ConnectionResult.SUCCESS){
+//			if (GooglePlayServicesUtil.isUserRecoverableError(ret)) {
+//				Dialog dialog = GooglePlayServicesUtil.getErrorDialog(ret, this,66);
+//				dialog.show();
+//				
+//		    } else {
+//		      Toast.makeText(this, "This device is not supported.", 
+//		          Toast.LENGTH_LONG).show();
+//		      finish();
+//		    }						
+//			
+//			return ;
+//		}
 		
 		
-		if( !isGPSProviderEnabled()){
+		if( !checkEnableGPS()){
 			Log.i(TAG,"GPS is not enabled, prompt user to enable it");
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage("检测到GPS未打开，是否打开GPS？");
@@ -184,6 +186,7 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 				public void onClick(DialogInterface dialog, int which) {
 					Intent intent = new Intent();
 					intent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+					
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					try{
 						startActivity(intent);
@@ -290,11 +293,13 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 
 		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    	mLastLocationFinder = PlatformSpecificImplementationFactory.getLastLocationFinder(this);
+    	mLastLocationFinder = PlatformSpecificImplementationFactory.getLastLocationFinder2(this);
     	
-    	mLastLocationFinder.setChangedLocationListener(new MyLocationListener());    	
-    	mLastLocation  = mLastLocationFinder.getLastBestLocation(2000, new Date().getTime() - 120 * 1000);
+    	mLastLocationFinder.setChangedLocationListener(FpaService.locListener);    	
+    	mLastLocation  = mLastLocationFinder.getLastBestLocation(50, new Date().getTime() - 2 * 1000);
     	Log.d(TAG, "Got last best location:"+mLastLocation);
+    	
+    	
 		
 	}
 	
@@ -319,9 +324,9 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
     	
     	
     	if( latlng !=null ){
-    		mMapfrag = SimpleMapFragment.newInstance(latlng);
+    		mMapfrag = new AMapSimpleMapFragment();
     	}else{
-    		mMapfrag = SimpleMapFragment.newInstance();
+    		mMapfrag = new AMapSimpleMapFragment();
     	}
     	
     	
@@ -343,6 +348,23 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 		}
 		return mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);		
 	}
+	
+	@SuppressWarnings("deprecation")
+	private boolean checkEnableGPS(){
+	    
+		String provider = Settings.Secure.getString(getContentResolver(),
+	    		Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+//	    		Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_OFF);
+	    
+	    Log.d(TAG,"provider:"+provider);
+	    if(provider == null){
+	    	provider = "";
+	    	
+	    }
+	    return provider.contains(LocationManager.GPS_PROVIDER);
+	    
+	     
+	}	
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -516,7 +538,7 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 				 newLng = bundle.getDouble("lng");
 				 timestamp = bundle.getDouble("timestamp");
 				
-				 myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));				
+				 //myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));				
 				 Log.d(TAG,"MSG_DRAW_MARKER");
 				 
 				 addMarker(iUUID, userCode,newLat,newLng, null, null, myIUUID == iUUID);
@@ -531,11 +553,17 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 				 bundle = (Bundle) msg.getData();
 				 iUUID = bundle.getInt("iUUID");
 				 userCode = bundle.getInt("userCode");
+
 				 newLat = bundle.getDouble("lat");
 				 newLng = bundle.getDouble("lng");
+				 if( userCode == 1){
+					 Log.d(TAG,"userCode1 move to:"+newLat+" lng:"+newLng);
+					 
+				 }				 
+				 
 				 timestamp = bundle.getDouble("timestamp");
 				
-				 myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));
+				 //myCode =  Integer.valueOf(mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0"));
 				
 				 
 				moveMarker(iUUID,newLat,newLng, iUUID == myIUUID);

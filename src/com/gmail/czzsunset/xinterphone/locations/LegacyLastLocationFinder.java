@@ -75,7 +75,7 @@ public class LegacyLastLocationFinder implements ILastLocationFinder {
   public Location getLastBestLocation(int minDistance, long minTime) {
     Location bestResult = null;
     float bestAccuracy = Float.MAX_VALUE;
-    long bestTime = Long.MAX_VALUE;
+    long bestTime = Long.MIN_VALUE;
     
     // Iterate through all the providers on the system, keeping
     // note of the most accurate result within the acceptable time limit.
@@ -87,12 +87,12 @@ public class LegacyLastLocationFinder implements ILastLocationFinder {
         float accuracy = location.getAccuracy();
         long time = location.getTime();
         
-        if ((time < minTime && accuracy < bestAccuracy)) {
+        if ((time > minTime && accuracy < bestAccuracy)) {
           bestResult = location;
           bestAccuracy = accuracy;
           bestTime = time;
         }
-        else if (time > minTime && bestAccuracy == Float.MAX_VALUE && time < bestTime) {
+        else if (time < minTime && bestAccuracy == Float.MAX_VALUE && time > bestTime) {
           bestResult = location;
           bestTime = time;
         }
@@ -105,7 +105,7 @@ public class LegacyLastLocationFinder implements ILastLocationFinder {
     // location updates every [minTime] and [minDistance]. 
     // Prior to Gingerbread "one-shot" updates weren't available, so we need to implement
     // this manually.
-    if (locationListener != null && (bestTime > minTime || bestAccuracy > minDistance)) { 
+    if (locationListener != null && (bestTime < minTime || bestAccuracy > minDistance)) { 
       String provider = locationManager.getBestProvider(criteria, true);
       if (provider != null)
         locationManager.requestLocationUpdates(provider, 0, 0, singeUpdateListener, context.getMainLooper());

@@ -42,6 +42,7 @@ import com.gmail.czzsunset.xinterphone.ui.SimpleMainActivity;
 import com.gmail.czzsunset.xinterphone.ui.SimpleMainActivity2;
 import com.gmail.czzsunset.xinterphone.ui.SimpleMapFragment;
 import com.gmail.czzsunset.xinterphone.ui.SimplePrefActivity;
+import com.gmail.czzsunset.xinterphone.utils.CoordsConverter;
 import com.google.android.gms.maps.model.LatLng;
 
 public class FpaService extends Service implements LocationListener  {
@@ -101,6 +102,14 @@ public class FpaService extends Service implements LocationListener  {
     			
     			double lat = location.getLatitude();
     			double lng = location.getLongitude();
+    			
+    			CoordsConverter.LatLng earthLatLng = new CoordsConverter.LatLng(lat,lng);
+    			
+    			CoordsConverter.LatLng marsLatLng = CoordsConverter.coordsTransformEarth2Mars(earthLatLng);
+    			
+    			lat = marsLatLng.lat;
+    			lng = marsLatLng.lng;    			
+    			
     			Log.d(TAG, "locListener received a new location fix, lat:"+lat+" lng:"+lng );
     			
     			String sUserCode = mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") ;
@@ -165,6 +174,14 @@ public class FpaService extends Service implements LocationListener  {
     			
     			double lat = location.getLatitude();
     			double lng = location.getLongitude();
+    			
+    			CoordsConverter.LatLng earthLatLng = new CoordsConverter.LatLng(lat,lng);
+    			
+    			CoordsConverter.LatLng marsLatLng = CoordsConverter.coordsTransformEarth2Mars(earthLatLng);
+    			
+    			lat = marsLatLng.lat;
+    			lng = marsLatLng.lng;
+    			
     			Log.d(TAG, "LocUpdateFromHost received a new location fix, lat:"+lat+" lng:"+lng );
     			
     			String sUserCode = mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") ;

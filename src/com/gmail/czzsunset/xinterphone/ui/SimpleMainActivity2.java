@@ -52,6 +52,7 @@ import com.gmail.czzsunset.xinterphone.lib.SimpleDatabaseHelper.SimpleTraceTable
 import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
 import com.gmail.czzsunset.xinterphone.locations.base.ILastLocationFinder;
 import com.gmail.czzsunset.xinterphone.ui.AMapSimpleMapFragment.MarkerColor;
+import com.gmail.czzsunset.xinterphone.utils.CoordsConverter;
 
 
 import com.google.android.gms.common.ConnectionResult;
@@ -219,11 +220,21 @@ public class SimpleMainActivity2 extends ActionBarActivity  implements ServiceCo
 			int userCode = Integer.valueOf( mSharedPref.getString(SimplePrefActivity.KEY_PREF_MY_CODE, "0") );
 			int iUUID = Util.getIUUID(this, 0);
 			
+			double lat = mLastLocation.getLatitude();
+			double lng = mLastLocation.getLongitude();
+			double marsLat, marsLng;
+			
+			CoordsConverter.LatLng earthLatLng = new CoordsConverter.LatLng(lat,lng);
+			
+			CoordsConverter.LatLng marsLatLng = CoordsConverter.coordsTransformEarth2Mars(earthLatLng);
+			
+			marsLat = marsLatLng.lat;
+			marsLng = marsLatLng.lng;			
+			
 			
 			Log.d(TAG, "mLastLocation  not null. iUUID:"+ iUUID + " userCode:" + userCode);
-			addMarker(iUUID, userCode, mLastLocation.getLatitude(),mLastLocation.getLongitude(),
-					null,null, true);	
-			mMapfrag.animateToLocation(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 500);
+			addMarker(iUUID, userCode, marsLat, marsLng, null, null, true);	
+			mMapfrag.animateToLocation( new LatLng(marsLat,marsLng), 500);
 		}
 		
 		

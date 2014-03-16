@@ -257,8 +257,8 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
                 marker.setPosition(new LatLng(lat, lng));
                 
                 if( mapWillFollow){
-//                	float curZoom = mMap.getCameraPosition().zoom;
-//                	mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), curZoom) );
+                	float curZoom = mMap.getCameraPosition().zoom;
+                	mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), curZoom) );
                 }
 
                 if (t < 1.0) {
@@ -346,21 +346,21 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
                     	mUiSetting.setAllGesturesEnabled(true);       
                     	
                     	
-                    	mMap.setOnCameraChangeListener(new OnCameraChangeListener(){
-
-							@Override
-							public void onCameraChange(CameraPosition arg0) {
-								// TODO Auto-generated method stub
-								
-							}
-
-							@Override
-							public void onCameraChangeFinish(CameraPosition arg0) {
-								// TODO Auto-generated method stub
-								bMapWillFollow = false;
-							}
-                    		
-                    	});
+//                    	mMap.setOnCameraChangeListener(new OnCameraChangeListener(){
+//
+//							@Override
+//							public void onCameraChange(CameraPosition arg0) {
+//								// TODO Auto-generated method stub
+//								
+//							}
+//
+//							@Override
+//							public void onCameraChangeFinish(CameraPosition arg0) {
+//								// TODO Auto-generated method stub
+//								bMapWillFollow = false;
+//							}
+//                    		
+//                    	});
                     	
 //                    	mMap.setOnMyLocationButtonClickListener(new OnMyLocationButtonClickListener(){
 //

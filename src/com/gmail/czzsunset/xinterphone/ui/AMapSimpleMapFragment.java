@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -21,16 +22,23 @@ import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.AMap.OnCameraChangeListener;
+import com.amap.api.maps.AMap.OnMapClickListener;
 import com.amap.api.maps.AMapOptions;
 import com.amap.api.maps.CameraUpdate;
 import com.amap.api.maps.CameraUpdateFactory;
+import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapFragment;
 import com.amap.api.maps.Projection;
 import com.amap.api.maps.SupportMapFragment;
@@ -45,12 +53,12 @@ import com.gmail.czzsunset.xinterphone.R;
 
 
 
-public class AMapSimpleMapFragment extends SupportMapFragment {
+public class AMapSimpleMapFragment extends SupportMapFragment implements LocationSource{
 
 	
 	public static final String TAG = "AMapSimpleMapFragment";
 	
-	
+	public static OnLocationChangedListener pListener;
 	
 	private static MapFragment mMapFrag;
 	
@@ -78,7 +86,37 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
 		BLUE;
 	}
 
-	
+	private class TouchViewWrapper extends FrameLayout{
+
+		public TouchViewWrapper(Context context) {
+			super(context);
+			// TODO Auto-generated constructor stub
+			Log.i(TAG,"MyLocationButtonWrapper");
+		}
+		
+	    @Override
+	    public boolean dispatchTouchEvent(MotionEvent ev) {
+	    	
+	    	int x = (int)ev.getX();
+	    	int y = (int)ev.getY();
+	    	
+	    	
+	    	
+	        switch (ev.getAction()) {	        
+	            case MotionEvent.ACTION_DOWN:	
+	            	
+	            	
+	            	
+	            case MotionEvent.ACTION_UP:
+	            	Log.i(TAG,"dispatchTouchEvent");	            	
+	            	bMapWillFollow = true;
+	                break;
+	        }
+	        
+	        return super.dispatchTouchEvent(ev);
+
+	    }
+	}
 
 	
 	
@@ -88,12 +126,53 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
 		Log.i(TAG,"onCreate");
 	}
 	
+	private View mOriginalView;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Log.d(TAG,"onCreateView");
-		View view = super.onCreateView(inflater, container, savedInstanceState);
+		mOriginalView = super.onCreateView(inflater, container, savedInstanceState);
+		
+		TouchViewWrapper touchview = new TouchViewWrapper(getActivity());
+		
+		touchview.addView(mOriginalView);
+		
+		
+//		FrameLayout flayout = new FrameLayout(getActivity());
+//		
+//		
+//	
+//		
+//		RelativeLayout rlayout = new RelativeLayout(getActivity());
+//
+//	
+//		float scale = getResources().getDisplayMetrics().density;
+//		
+//		Log.d(TAG, "scale:"+ scale);
+//		MyLocationButtonWrapper btnFlayout = new MyLocationButtonWrapper(getActivity());
+////		btnFlayout.setBackgroundColor(Color.RED);
+//		
+//		RelativeLayout.LayoutParams lParams = new RelativeLayout.LayoutParams((int)(40 * scale), (int)(40 * scale) );
+//		
+//		lParams.rightMargin = (int) (10 * scale);
+//		lParams.topMargin = (int) (10 * scale);
+//		lParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+//		
+//		rlayout.addView(btnFlayout, lParams	);
+//		
+//		
+//		
+//		flayout.addView(mapView);
+//		flayout.addView(rlayout);
+//				
+		
 		setUpMapIfNeeded();
-		return view;
+		return touchview;
+	}
+	
+	
+	@Override
+	public View getView(){
+		return mOriginalView;
 	}
 	
 	@Override
@@ -142,6 +221,10 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
 	
 	private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private Rect bounds = new Rect();
+
+
+
+	
 	
 
 	
@@ -226,7 +309,7 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
 		final Marker marker =  mMarkers.get(iUUID);
 		if(marker != null){
 			Log.d(TAG,"bMapWillFollow:" + bMapWillFollow);
-			animateMarker(marker, dstLat, dstLng, durationMs, false, mapWillFollow);
+			animateMarker(marker, dstLat, dstLng, durationMs, false, bMapWillFollow);
 		}else{
 			Log.d(TAG,"marker is null");
 		}
@@ -256,7 +339,7 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
                         * startLatLng.latitude;
                 marker.setPosition(new LatLng(lat, lng));
                 
-                if( mapWillFollow){
+                if( bMapWillFollow){
                 	float curZoom = mMap.getCameraPosition().zoom;
                 	mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), curZoom) );
                 }
@@ -324,7 +407,7 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
                 		
                 		Log.i(TAG,"Got GooogleMap");
                 		
-                		mMap.setMyLocationEnabled(true);
+//                		mMap.setMyLocationEnabled(true);
                 		
                 		float maxZoom = mMap.getMaxZoomLevel();
                 		
@@ -335,32 +418,45 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
                 		
                 		mMap.moveCamera(cam);
                 		
+                		mMap.setLocationSource(this);
                 		
 //                		mMap.setMapType(mMap.MAP_TYPE_SATELLITE);
                 		
                 		UiSettings mUiSetting = mMap.getUiSettings();	
                     	mUiSetting.setMyLocationButtonEnabled(true);
-                    	mMap.setMyLocationEnabled(true);
+//                    	mMap.setMyLocationEnabled(true);
                     	mUiSetting.setCompassEnabled(true);                    	
                     	
                     	mUiSetting.setAllGesturesEnabled(true);       
                     	
                     	
-//                    	mMap.setOnCameraChangeListener(new OnCameraChangeListener(){
-//
-//							@Override
-//							public void onCameraChange(CameraPosition arg0) {
-//								// TODO Auto-generated method stub
-//								
-//							}
-//
-//							@Override
-//							public void onCameraChangeFinish(CameraPosition arg0) {
-//								// TODO Auto-generated method stub
-//								bMapWillFollow = false;
-//							}
-//                    		
-//                    	});
+                    	mMap.setOnCameraChangeListener(new OnCameraChangeListener(){
+
+							@Override
+							public void onCameraChange(CameraPosition arg0) {
+								// TODO Auto-generated method stub
+								
+							}
+
+							@Override
+							public void onCameraChangeFinish(CameraPosition arg0) {
+								// TODO Auto-generated method stub
+								bMapWillFollow = false;
+							}
+                    		
+                    	});
+                    	
+                    	mMap.setOnMapClickListener(new OnMapClickListener(){
+
+							@Override
+							public void onMapClick(LatLng arg0) {
+								// TODO Auto-generated method stub
+								Log.i(TAG,"map clicked");
+							}
+                    		
+							
+                    		
+                    	});
                     	
 //                    	mMap.setOnMyLocationButtonClickListener(new OnMyLocationButtonClickListener(){
 //
@@ -371,7 +467,7 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
 //								return false;
 //							}														                    		
 //                    	});
-//                    	
+                    	
 //                    	mMap.setOnCameraChangeListener(new OnCameraChangeListener(){
 //
 //							@Override
@@ -396,6 +492,19 @@ public class AMapSimpleMapFragment extends SupportMapFragment {
         	Log.d(TAG, "Google map is not null");
         }
     }
+
+	@Override
+	public void activate(OnLocationChangedListener listener) {
+		// TODO Auto-generated method stub
+		pListener = listener;
+		
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+		pListener = null;
+	}
 
   	
 	

@@ -36,6 +36,7 @@ import com.gmail.czzsunset.xinterphone.lib.USBControl;
 import com.gmail.czzsunset.xinterphone.locations.PlatformSpecificImplementationFactory;
 import com.gmail.czzsunset.xinterphone.locations.base.LocationUpdateRequester;
 import com.gmail.czzsunset.xinterphone.model.SimpleUser;
+import com.gmail.czzsunset.xinterphone.ui.AMapSimpleMapFragment;
 import com.gmail.czzsunset.xinterphone.ui.MainActivity;
 import com.gmail.czzsunset.xinterphone.ui.PeerManager;
 import com.gmail.czzsunset.xinterphone.ui.SimpleMainActivity;
@@ -132,8 +133,13 @@ public class FpaService extends Service implements LocationListener  {
     				self.lastBroadcastMs = curMs;
     			}
     			
-    			
-    		}			
+    			if( AMapSimpleMapFragment.pListener != null){
+    				AMapSimpleMapFragment.pListener.onLocationChanged(location);
+    			}
+    		}
+			
+			
+
 			
 		}
 

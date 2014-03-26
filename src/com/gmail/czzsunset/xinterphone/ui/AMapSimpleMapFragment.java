@@ -97,22 +97,22 @@ public class AMapSimpleMapFragment extends SupportMapFragment implements Locatio
 	    @Override
 	    public boolean dispatchTouchEvent(MotionEvent ev) {
 	    	
-	    	int x = (int)ev.getX();
-	    	int y = (int)ev.getY();
 	    	
-	    	
-	    	
-	        switch (ev.getAction()) {	        
-	            case MotionEvent.ACTION_DOWN:	
-	            	
-	            	
-	            	
-	            case MotionEvent.ACTION_UP:
-	            	Log.i(TAG,"dispatchTouchEvent");	            	
-	            	bMapWillFollow = true;
-	                break;
-	        }
-	        
+	    	switch(ev.getAction()){
+	    	case MotionEvent.ACTION_DOWN:
+	    		break;
+	    	case MotionEvent.ACTION_UP:
+		    	int x = (int)( ev.getX() / mScale );	    	
+		    	int y = (int)( ev.getY() / mScale );
+		    	if(mMyLocationBtnRect.contains(x,y)){
+		    		bMapWillFollow = true;
+		    		Log.i(TAG, "click my location botton");
+		    	}else{
+		    		bMapWillFollow = false;
+		    	}
+	    		break;
+	    	}
+	    
 	        return super.dispatchTouchEvent(ev);
 
 	    }
@@ -124,9 +124,23 @@ public class AMapSimpleMapFragment extends SupportMapFragment implements Locatio
 	public void onCreate(Bundle bundle){
 		super.onCreate(bundle);
 		Log.i(TAG,"onCreate");
+		
+		mScale = getResources().getDisplayMetrics().density;
+		
+		
+		int widthPt = (int) (getResources().getDisplayMetrics().widthPixels / mScale);
+		int topLeftX = widthPt - 50;
+		int topLeftY = 0;
+		int bottomRightX = widthPt ;
+		int bottomRightY = 50;
+		mMyLocationBtnRect = new Rect( topLeftX, topLeftY, bottomRightX, bottomRightY);
 	}
 	
 	private View mOriginalView;
+	private float mScale ;  
+	private Rect mMyLocationBtnRect ;
+	
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Log.d(TAG,"onCreateView");
@@ -134,7 +148,9 @@ public class AMapSimpleMapFragment extends SupportMapFragment implements Locatio
 		
 		TouchViewWrapper touchview = new TouchViewWrapper(getActivity());
 		
+		touchview.setBackgroundColor(Color.BLUE);
 		touchview.addView(mOriginalView);
+		
 		
 		
 //		FrameLayout flayout = new FrameLayout(getActivity());
@@ -418,7 +434,7 @@ public class AMapSimpleMapFragment extends SupportMapFragment implements Locatio
                 		
                 		mMap.moveCamera(cam);
                 		
-                		mMap.setLocationSource(this);
+//                		mMap.setLocationSource(this);
                 		
 //                		mMap.setMapType(mMap.MAP_TYPE_SATELLITE);
                 		

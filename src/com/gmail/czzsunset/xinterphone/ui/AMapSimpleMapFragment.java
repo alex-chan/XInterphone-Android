@@ -446,33 +446,33 @@ public class AMapSimpleMapFragment extends SupportMapFragment implements Locatio
                     	mUiSetting.setAllGesturesEnabled(true);       
                     	
                     	
-                    	mMap.setOnCameraChangeListener(new OnCameraChangeListener(){
-
-							@Override
-							public void onCameraChange(CameraPosition arg0) {
-								// TODO Auto-generated method stub
-								
-							}
-
-							@Override
-							public void onCameraChangeFinish(CameraPosition arg0) {
-								// TODO Auto-generated method stub
-								bMapWillFollow = false;
-							}
-                    		
-                    	});
-                    	
-                    	mMap.setOnMapClickListener(new OnMapClickListener(){
-
-							@Override
-							public void onMapClick(LatLng arg0) {
-								// TODO Auto-generated method stub
-								Log.i(TAG,"map clicked");
-							}
-                    		
-							
-                    		
-                    	});
+//                    	mMap.setOnCameraChangeListener(new OnCameraChangeListener(){
+//
+//							@Override
+//							public void onCameraChange(CameraPosition arg0) {
+//								// TODO Auto-generated method stub
+//								
+//							}
+//
+//							@Override
+//							public void onCameraChangeFinish(CameraPosition arg0) {
+//								// TODO Auto-generated method stub
+//								bMapWillFollow = false;
+//							}
+//                    		
+//                    	});
+//                    	
+//                    	mMap.setOnMapClickListener(new OnMapClickListener(){
+//
+//							@Override
+//							public void onMapClick(LatLng arg0) {
+//								// TODO Auto-generated method stub
+//								Log.i(TAG,"map clicked");
+//							}
+//                    		
+//							
+//                    		
+//                    	});
                     	
 //                    	mMap.setOnMyLocationButtonClickListener(new OnMyLocationButtonClickListener(){
 //

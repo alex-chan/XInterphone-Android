@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <usb-accessory model="InterphoneMessage" manufacturer="gmail.czzsunset" version="1.0"/>
+    <usb-accessory model="XInterphone" manufacturer="gmail.czzsunset" version="1.0"/>
 </resources>

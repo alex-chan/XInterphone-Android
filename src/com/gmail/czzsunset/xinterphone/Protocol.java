@@ -107,7 +107,7 @@ public class Protocol {
 				peer.altitude = altitude;
 				peer.timestamp = mills;
 				
-						
+				Log.d(TAG,"recieved longitude:"+longitude);
 				
 				
 				

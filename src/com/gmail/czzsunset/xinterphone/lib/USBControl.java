@@ -193,13 +193,14 @@ public abstract class USBControl extends Thread{
 							Log.d(TAG,   "listener running..");
 							i++;
 						}
+						Log.i(TAG, "received data...");
 						//Handle incoming messages
 						while (running && input != null && input.read(msg) != -1 ){
-							
+							Log.i(TAG, "received data");
+							Log.i(TAG, Arrays.toString(msg));
 							if( msg[0] != -1 ){ 
-								// This is a trick. that arduino sends to android to prevent read block.
-								Log.i(TAG, "received data");
-								Log.i(TAG, Arrays.toString(msg));
+								// This is a trick. that arduino sends byte 0xff to android to prevent read block.
+														
 								receive(msg);
 								Thread.sleep(20);	
 							}
